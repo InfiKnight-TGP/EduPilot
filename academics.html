@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Academics{% endblock %}
+{% block page_title %}Academic Performance{% endblock %}
+
+{% block extra_head %}
+<style>
+.perf-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 24px; }
+.gpa-panel { display: flex; flex-direction: column; gap: 16px; }
+.gpa-big { font-family: 'Instrument Serif', serif; font-size: 64px; line-height: 1; color: var(--accent); }
+.gpa-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.predict-controls { margin-top: 16px; }
+.slider-group { margin-bottom: 16px; }
+.slider-group label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; }
+input[type=range] {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+.course-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.course-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.course-name-big { font-size: 14px; font-weight: 600; }
+.course-code { font-size: 11px; color: var(--muted); }
+.marks-bar { position: relative; }
+.marks-bg { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.marks-fill { height: 100%; border-radius: 4px; }
+.marks-label { display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px; color: var(--muted); }
+.grade-badge {
+  font-size: 18px; font-weight: 800;
+  min-width: 40px; text-align: center;
+}
+.prediction-result {
+  background: rgba(124,106,247,0.08);
+  border: 1px solid rgba(124,106,247,0.2);
+  border-radius: 8px;
+  padding: 14px;
+  margin-top: 12px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="ai-insight" style="margin-bottom: 24px">
+  <div class="ai-icon">📈</div>
+  <div class="ai-text">
+    <strong>GPA Prediction:</strong> Your probability of scoring above <strong>8.5 CGPA</strong> this semester is <strong>78%</strong>. Spending 3 extra hours weekly on Advanced Python can increase it to <strong>89%</strong>. Database Systems is your strongest course — great work!
+  </div>
+</div>
+
+<div class="perf-grid">
+
+  <!-- GPA Panel -->
+  <div class="gpa-panel">
+    <div class="card">
+      <div class="card-title">Current CGPA</div>
+      <div class="gpa-big">{{ student.cgpa }}</div>
+      <div class="gpa-label">out of 10.0 · Semester {{ student.semester }}</div>
+      <div style="margin-top: 16px">
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 4px">
+          <span>0.0</span><span>5.0</span><span>10.0</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: {{ (student.cgpa/10*100)|int }}%; background: linear-gradient(90deg, var(--accent), var(--accent2))"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">GPA Predictor</div>
+      <div class="predict-controls">
+        <div class="slider-group">
+          <label>Extra study hours per week: <strong id="hoursVal">3</strong>h</label>
+          <input type="range" id="extraHours" min="0" max="15" value="3">
+        </div>
+        <button class="btn btn-primary" onclick="predictGPA()" style="width: 100%">Run Prediction</button>
+      </div>
+      <div class="prediction-result" id="predResult">
+        <div style="font-size: 12px; color: var(--muted)">Predicted CGPA</div>
+        <div style="font-size: 28px; font-weight: 700; color: var(--accent)" id="predCGPA">8.45</div>
+        <div style="font-size: 12px; color: var(--muted)" id="predProb">Success probability: 78% → 89%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Courses -->
+  <div>
+    <div class="section-header">
+      <div class="section-title">Course Performance</div>
+    </div>
+    {% set grade_colors = {'A+': '#68d391', 'A': '#4fd1c5', 'B+': '#f6ad55', 'B': '#fc8181'} %}
+    {% for course in courses %}
+    {% set gc = grade_colors.get(course.grade, '#8888a0') %}
+    <div class="course-card">
+      <div class="course-header">
+        <div>
+          <div class="course-name-big">{{ course.name }}</div>
+          <div class="course-code">{{ course.code }} · {{ course.faculty }}</div>
+        </div>
+        <div>
+          <div class="grade-badge" style="color: {{ gc }}">{{ course.grade }}</div>
+          <div style="font-size: 11px; color: var(--muted); text-align: center">{{ course.marks }}/100</div>
+        </div>
+      </div>
+      <div class="marks-bar">
+        <div class="marks-bg">
+          <div class="marks-fill" style="width: {{ course.marks }}%; background: {{ gc }}; opacity: 0.8"></div>
+        </div>
+        <div class="marks-label">
+          <span>Faculty Rating: ⭐ {{ course.rating }}</span>
+          <span>{{ course.marks }}%</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('extraHours').addEventListener('input', function() {
+  document.getElementById('hoursVal').textContent = this.value;
+});
+
+async function predictGPA() {
+  const hours = parseInt(document.getElementById('extraHours').value);
+  const res = await fetch('/api/gpa-predict', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({extra_hours: hours})
+  });
+  const data = await res.json();
+  document.getElementById('predCGPA').textContent = data.predicted_cgpa;
+  document.getElementById('predProb').textContent =
+    `Success probability: ${data.base_probability}% → ${data.boosted_probability}%`;
+}
+</script>
+{% endblock %}

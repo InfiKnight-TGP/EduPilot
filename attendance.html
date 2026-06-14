@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Attendance{% endblock %}
+{% block page_title %}Smart Attendance Predictor{% endblock %}
+
+{% block extra_head %}
+<style>
+.att-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  align-items: center;
+  gap: 16px;
+}
+.att-name { font-size: 13px; font-weight: 600; }
+.att-code { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.att-ring { position: relative; width: 56px; height: 56px; }
+.att-ring svg { transform: rotate(-90deg); }
+.att-ring-center {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px; font-weight: 700; text-align: center;
+}
+.att-num { text-align: center; }
+.att-num .val { font-size: 16px; font-weight: 700; }
+.att-num .lbl { font-size: 10px; color: var(--muted); }
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="ai-insight" style="margin-bottom: 24px">
+  <div class="ai-icon">✅</div>
+  <div class="ai-text">
+    <strong>Attendance AI:</strong> Overall attendance is <strong>84%</strong> — you're safe. However, <strong>Advanced Python (78%)</strong> is in the warning zone. You can only miss <strong>1 more class</strong> in that subject. Engineering Ethics is also close at 75% — attend all remaining classes.
+  </div>
+</div>
+
+<!-- Overall -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px">
+  <div class="card" style="text-align: center">
+    <div class="card-title">Overall Attendance</div>
+    <div class="stat-value" style="color: var(--accent2)">{{ student.attendance }}%</div>
+    <div class="stat-delta up">Above 75% minimum</div>
+  </div>
+  <div class="card" style="text-align: center">
+    <div class="card-title">Courses Safe</div>
+    <div class="stat-value" style="color: var(--success)">4</div>
+    <div class="stat-label">Above 80%</div>
+  </div>
+  <div class="card" style="text-align: center">
+    <div class="card-title">Courses Critical</div>
+    <div class="stat-value" style="color: var(--danger)">2</div>
+    <div class="stat-label">Below 80%</div>
+  </div>
+</div>
+
+<!-- Header -->
+<div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 16px; padding: 8px 18px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px">
+  <span>Course</span>
+  <span style="text-align: center">Attended/Total</span>
+  <span style="text-align: center">Percentage</span>
+  <span style="text-align: center">Can Miss</span>
+  <span style="text-align: center">Status</span>
+</div>
+
+{% for c in attendance_data %}
+{% set color = '#fc8181' if c.attendance < 76 else '#f6ad55' if c.attendance < 82 else '#68d391' %}
+{% set radius = 22 %}
+{% set circ = 2 * 3.14159 * radius %}
+{% set offset = circ * (1 - c.attendance / 100) %}
+<div class="att-card">
+  <div>
+    <div class="att-name">{{ c.name }}</div>
+    <div class="att-code">{{ c.code }}</div>
+  </div>
+
+  <div style="text-align: center">
+    <div class="att-ring" style="margin: 0 auto">
+      <svg width="56" height="56" viewBox="0 0 56 56">
+        <circle cx="28" cy="28" r="{{ radius }}" fill="none" stroke="var(--border)" stroke-width="5"/>
+        <circle cx="28" cy="28" r="{{ radius }}" fill="none" stroke="{{ color }}" stroke-width="5"
+          stroke-dasharray="{{ circ }}" stroke-dashoffset="{{ offset }}"
+          stroke-linecap="round"/>
+      </svg>
+      <div class="att-ring-center" style="color: {{ color }}">{{ c.attendance }}%</div>
+    </div>
+  </div>
+
+  <div class="att-num">
+    <div class="val">{{ c.attended }}/{{ c.total }}</div>
+    <div class="lbl">classes</div>
+  </div>
+
+  <div class="att-num">
+    <div class="val" style="color: {{ color }}">{{ c.safe_to_miss }}</div>
+    <div class="lbl">safe to skip</div>
+  </div>
+
+  <div style="text-align: center">
+    {% if c.attendance >= 85 %}
+    <span class="chip chip-green">✓ Safe</span>
+    {% elif c.attendance >= 75 %}
+    <span class="chip chip-orange">⚠ Warning</span>
+    {% else %}
+    <span class="chip chip-red">✗ Critical</span>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+{% endblock %}

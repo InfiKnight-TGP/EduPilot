@@ -1,0 +1,23 @@
+@startuml
+title EduPilot AI - Page Navigation
+left to right direction
+skinparam shadowing false
+skinparam roundcorner 12
+
+state "Dashboard\n(/)" as Dashboard
+state "Academics\n(/academics)" as Academics
+state "Timetable\n(/timetable)" as Timetable
+state "Assignments\n(/assignments)" as Assignments
+state "Career\n(/career)" as Career
+state "Wellness\n(/wellness)" as Wellness
+state "Attendance\n(/attendance)" as Attendance
+state "AI Assistant\n(/chat)" as Chat
+
+Dashboard --> Academics : open
+Dashboard --> Timetable : open
+Dashboard --> Assignments : open
+Dashboard --> Career : open
+Dashboard --> Wellness : open
+Dashboard --> Attendance : open
+Dashboard --> Chat : open
+@enduml

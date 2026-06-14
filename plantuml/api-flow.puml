@@ -1,0 +1,27 @@
+@startuml
+title EduPilot AI - API Flow
+skinparam shadowing false
+skinparam roundcorner 12
+actor Student
+participant "Browser UI" as UI
+participant "Flask App" as APP
+participant "Rule Engine" as RULES
+participant "Data Sampler" as DATA
+participant "JSON Response" as RESP
+
+Student -> UI : Submit message or request
+UI -> APP : POST request
+alt Chat endpoint
+  APP -> RULES : Analyze message keywords
+  RULES -> RESP : Build reply text
+  RESP -> UI : reply JSON
+else GPA prediction
+  APP -> DATA : Read student CGPA
+  APP -> RESP : base/boosted probability\npredicted CGPA
+  RESP -> UI : prediction JSON
+else Attendance forecast
+  APP -> DATA : Find course record
+  APP -> RESP : current attendance\nsafe-to-miss status
+  RESP -> UI : forecast JSON
+end
+@enduml

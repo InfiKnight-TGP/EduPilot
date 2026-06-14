@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduPilot AI — {% block title %}Dashboard{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090f;
+      --surface: #111118;
+      --surface2: #1a1a25;
+      --border: #2a2a3a;
+      --accent: #7c6af7;
+      --accent2: #4fd1c5;
+      --accent3: #f6ad55;
+      --danger: #fc8181;
+      --success: #68d391;
+      --text: #e8e8f0;
+      --muted: #8888a0;
+      --radius: 12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .wordmark {
+      font-family: 'Instrument Serif', serif;
+      font-size: 22px;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+    .sidebar-logo .wordmark span { color: var(--accent); }
+    .sidebar-logo .tagline {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-student {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .student-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px; color: #fff;
+      margin-bottom: 8px;
+    }
+    .student-name { font-weight: 600; font-size: 13px; color: var(--text); }
+    .student-id { font-size: 11px; color: var(--muted); }
+
+    .nav-section { padding: 12px 0; }
+    .nav-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      padding: 8px 20px 4px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 20px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.15s;
+      border-left: 2px solid transparent;
+    }
+    .nav-item:hover { color: var(--text); background: var(--surface2); }
+    .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(124,106,247,0.08); }
+    .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Main content */
+    .main {
+      margin-left: 220px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .topbar {
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-title { font-size: 16px; font-weight: 600; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .badge-cgpa {
+      background: rgba(124,106,247,0.15);
+      color: var(--accent);
+      border: 1px solid rgba(124,106,247,0.3);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-sem {
+      background: var(--surface2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+    .page-content { padding: 28px 32px; flex: 1; }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .card-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .grid { display: grid; gap: 16px; }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-auto { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+    .stat-value { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+    .stat-label { font-size: 12px; color: var(--muted); }
+    .stat-delta { font-size: 11px; margin-top: 4px; }
+    .up { color: var(--success); }
+    .down { color: var(--danger); }
+    .warn { color: var(--accent3); }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    /* Tags / Chips */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .chip-purple { background: rgba(124,106,247,0.15); color: var(--accent); }
+    .chip-teal { background: rgba(79,209,197,0.15); color: var(--accent2); }
+    .chip-orange { background: rgba(246,173,85,0.15); color: var(--accent3); }
+    .chip-red { background: rgba(252,129,129,0.15); color: var(--danger); }
+    .chip-green { background: rgba(104,211,145,0.15); color: var(--success); }
+
+    /* Table */
+    .table { width: 100%; border-collapse: collapse; }
+    .table th {
+      text-align: left; font-size: 10px; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--muted);
+      padding: 8px 12px; border-bottom: 1px solid var(--border);
+    }
+    .table td {
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(42,42,58,0.5);
+      font-size: 13px;
+    }
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #6b59e6; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+    /* Section header */
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-title { font-size: 15px; font-weight: 600; }
+    .section-sub { font-size: 12px; color: var(--muted); }
+
+    /* AI insight box */
+    .ai-insight {
+      background: linear-gradient(135deg, rgba(124,106,247,0.08), rgba(79,209,197,0.05));
+      border: 1px solid rgba(124,106,247,0.25);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .ai-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+    .ai-text { font-size: 13px; line-height: 1.6; color: var(--text); }
+    .ai-text strong { color: var(--accent); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="wordmark">Edu<span>Pilot</span></div>
+    <div class="tagline">AI Student Success Platform</div>
+  </div>
+
+  <div class="sidebar-student">
+    <div class="student-avatar">AS</div>
+    <div class="student-name">{{ student.name }}</div>
+    <div class="student-id">{{ student.id }} · Sem {{ student.semester }}</div>
+  </div>
+
+  <nav class="nav-section">
+    <div class="nav-label">Overview</div>
+    <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
+      <span class="icon">⬡</span> Dashboard
+    </a>
+
+    <div class="nav-label">Academic</div>
+    <a href="/academics" class="nav-item {% if request.path == '/academics' %}active{% endif %}">
+      <span class="icon">📊</span> Academics
+    </a>
+    <a href="/timetable" class="nav-item {% if request.path == '/timetable' %}active{% endif %}">
+      <span class="icon">🗓</span> Timetable
+    </a>
+    <a href="/assignments" class="nav-item {% if request.path == '/assignments' %}active{% endif %}">
+      <span class="icon">📝</span> Assignments
+    </a>
+    <a href="/attendance" class="nav-item {% if request.path == '/attendance' %}active{% endif %}">
+      <span class="icon">✅</span> Attendance
+    </a>
+
+    <div class="nav-label">Growth</div>
+    <a href="/career" class="nav-item {% if request.path == '/career' %}active{% endif %}">
+      <span class="icon">🚀</span> Career
+    </a>
+    <a href="/wellness" class="nav-item {% if request.path == '/wellness' %}active{% endif %}">
+      <span class="icon">🧘</span> Wellness
+    </a>
+    <a href="/chat" class="nav-item {% if request.path == '/chat' %}active{% endif %}">
+      <span class="icon">💬</span> AI Assistant
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    EduPilot AI · B2B Student Edition<br>
+    VIT University · 2024–25
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+    <div class="topbar-right">
+      <span class="badge-cgpa">CGPA {{ student.cgpa }}</span>
+      <span class="badge-sem">Sem {{ student.semester }} · {{ student.branch }}</span>
+    </div>
+  </div>
+  <div class="page-content">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

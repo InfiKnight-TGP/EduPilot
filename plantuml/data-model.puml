@@ -1,0 +1,60 @@
+@startuml
+title EduPilot AI - Data Model
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 12
+
+class Student {
+  +name: str
+  +id: str
+  +branch: str
+  +semester: int
+  +cgpa: float
+  +attendance: int
+  +credits_completed: int
+  +credits_total: int
+}
+
+class Course {
+  +code: str
+  +name: str
+  +faculty: str
+  +rating: float
+  +attendance: int
+  +grade: str
+  +marks: int
+}
+
+class Assignment {
+  +title: str
+  +course: str
+  +due_days: int
+  +status: str
+  +priority: str
+}
+
+class CareerStep {
+  +role: str
+  +status: str
+  +skills: List[str]
+}
+
+class Timetable {
+  +days: Dict[str, List[str]]
+}
+
+class Wellness {
+  +stress_level: int
+  +sleep_hours: float
+  +study_hours_week: int
+  +burnout_risk: str
+  +mood_trend: str
+  +streak_days: int
+}
+
+Student "1" --> "many" Course
+Student "1" --> "many" Assignment
+Student "1" --> "many" CareerStep
+Student "1" --> Timetable
+Student "1" --> Wellness
+@enduml

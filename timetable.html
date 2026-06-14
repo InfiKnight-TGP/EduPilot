@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Timetable{% endblock %}
+{% block page_title %}AI Timetable Optimizer{% endblock %}
+
+{% block extra_head %}
+<style>
+.tt-table { width: 100%; border-collapse: collapse; }
+.tt-table th {
+  background: var(--surface2);
+  padding: 10px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.tt-table td {
+  border: 1px solid var(--border);
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 12px;
+  vertical-align: middle;
+  min-width: 90px;
+}
+.tt-day { font-weight: 600; font-size: 12px; background: var(--surface2); }
+.slot-filled {
+  background: rgba(124,106,247,0.12);
+  color: var(--accent);
+  border-radius: 6px;
+  padding: 6px 4px;
+  font-weight: 600;
+  border: 1px solid rgba(124,106,247,0.2);
+}
+.slot-empty { color: var(--border); }
+.prefs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.pref-chip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pref-chip.selected { border-color: var(--accent); background: rgba(124,106,247,0.1); color: var(--accent); }
+.pref-icon { font-size: 16px; }
+.times-header { display: grid; grid-template-columns: 80px repeat(6, 1fr); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="ai-insight" style="margin-bottom: 24px">
+  <div class="ai-icon">🗓</div>
+  <div class="ai-text">
+    <strong>Timetable AI:</strong> Your current schedule has <strong>0 clashes</strong> and is optimized for morning productivity. Faculty ratings average <strong>4.4 / 5</strong>. Friday evenings are free as requested. Next semester optimization available in 3 weeks.
+  </div>
+</div>
+
+<!-- Preferences -->
+<div class="section-header"><div class="section-title">Schedule Preferences</div></div>
+<div class="prefs-grid" style="margin-bottom: 24px">
+  <div class="pref-chip selected"><span class="pref-icon">🌅</span> Prefer Morning Classes</div>
+  <div class="pref-chip selected"><span class="pref-icon">🚫</span> No Friday Evenings</div>
+  <div class="pref-chip selected"><span class="pref-icon">⭐</span> Faculty Rating &gt; 4.0</div>
+  <div class="pref-chip"><span class="pref-icon">🏃</span> Back-to-Back Free Slots</div>
+  <div class="pref-chip"><span class="pref-icon">🏠</span> Minimal Campus Days</div>
+  <div class="pref-chip"><span class="pref-icon">🎯</span> Consecutive Lectures</div>
+</div>
+
+<!-- Timetable -->
+<div class="card">
+  <div class="section-header">
+    <div class="section-title">Generated Timetable · Semester 6</div>
+    <button class="btn btn-primary" onclick="regenerate()">✨ Re-optimize</button>
+  </div>
+  <div style="overflow-x: auto">
+    <table class="tt-table">
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>8–9 AM</th>
+          <th>9–10 AM</th>
+          <th>11 AM–12</th>
+          <th>1–2 PM</th>
+          <th>3–4 PM</th>
+          <th>4–5 PM</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for day, slots in timetable.items() %}
+        <tr>
+          <td class="tt-day">{{ day }}</td>
+          {% for slot in slots %}
+          <td>
+            {% if slot != '—' %}
+            <div class="slot-filled">{{ slot }}</div>
+            {% else %}
+            <span class="slot-empty">—</span>
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px">
+  <div class="card" style="text-align: center">
+    <div class="stat-value" style="color: var(--success)">0</div>
+    <div class="stat-label">Schedule Clashes</div>
+  </div>
+  <div class="card" style="text-align: center">
+    <div class="stat-value" style="color: var(--accent)">4.4</div>
+    <div class="stat-label">Avg Faculty Rating</div>
+  </div>
+  <div class="card" style="text-align: center">
+    <div class="stat-value" style="color: var(--accent2)">3</div>
+    <div class="stat-label">Free Afternoons/Week</div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function regenerate() {
+  const btn = event.target;
+  btn.textContent = '⏳ Optimizing...';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = '✨ Re-optimize';
+    btn.disabled = false;
+    alert('Schedule re-optimized! All preferences satisfied. No clashes detected.');
+  }, 1800);
+}
+</script>
+{% endblock %}

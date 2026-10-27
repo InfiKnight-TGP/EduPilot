@@ -1,187 +1,153 @@
 {% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
-{% block page_title %}Good morning, Arjun 👋{% endblock %}
 
-{% block extra_head %}
-<style>
-.quick-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-.welcome-ai { margin-bottom: 24px; }
-.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.twin-visual {
-  background: linear-gradient(135deg, rgba(124,106,247,0.12), rgba(79,209,197,0.08));
-  border: 1px solid rgba(124,106,247,0.2);
-  border-radius: var(--radius);
-  padding: 20px;
-  position: relative;
-  overflow: hidden;
-}
-.twin-visual::before {
-  content: '';
-  position: absolute;
-  top: -30px; right: -30px;
-  width: 120px; height: 120px;
-  background: radial-gradient(circle, rgba(124,106,247,0.2), transparent 70%);
-  border-radius: 50%;
-}
-.twin-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-.twin-sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
-.twin-stat { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.twin-stat:last-child { border-bottom: none; }
-.twin-stat-label { font-size: 12px; color: var(--muted); }
-.twin-stat-value { font-size: 13px; font-weight: 600; }
-.course-mini { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(42,42,58,0.5); }
-.course-mini:last-child { border-bottom: none; }
-.course-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.course-mini-name { font-size: 13px; flex: 1; }
-.course-mini-grade {
-  font-size: 12px; font-weight: 700;
-  background: rgba(124,106,247,0.15);
-  color: var(--accent);
-  padding: 2px 8px; border-radius: 4px;
-}
-.assign-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(42,42,58,0.5); }
-.assign-item:last-child { border-bottom: none; }
-.assign-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.assign-name { flex: 1; font-size: 13px; }
-.assign-course { font-size: 11px; color: var(--muted); }
-.assign-due { font-size: 11px; font-weight: 600; }
-.ring-container { position: relative; width: 80px; height: 80px; margin: 0 auto 12px; }
-.ring-container svg { transform: rotate(-90deg); }
-.ring-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-.ring-center .val { font-size: 18px; font-weight: 700; }
-.ring-center .lbl { font-size: 9px; color: var(--muted); }
-.mini-rings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; margin-top: 8px; }
-</style>
-{% endblock %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Good morning, Dinesh 👋{% endblock %}
 
 {% block content %}
+<div class="wrap stack">
 
-<!-- AI Insight Banner -->
-<div class="ai-insight welcome-ai">
-  <div class="ai-icon">🤖</div>
-  <div class="ai-text">
-    <strong>EduPilot AI says:</strong> You have a Database ER Diagram due <strong>tomorrow</strong> and 3 other pending assignments. Your CGPA prediction for this semester is <strong>8.5+</strong> with 78% confidence. Advanced Python attendance (78%) needs attention — you can miss only 1 more class.
-  </div>
-</div>
+  <!-- HERO: Text formatting showcase (b, i, u, mark, strong, em, sub, sup) -->
+  <section class="hero" aria-labelledby="dash-hero-h">
+    <p class="eyebrow">Academic Status · <mark>On Track</mark></p>
+    <h1 id="dash-hero-h" class="display">Welcome back, <b>Dinesh</b>!</h1>
+    <p class="lead">
+      Your current <i>academic trajectory</i> in <u>{{ student.branch }}</u> is strong.
+      Daily target: Maintain optimal H<sub>2</sub>O hydration, achieve CGPA in the Top 5<sup>th</sup> percentile (Target: 8.5<sup>+</sup>).
+      <strong>Proactive revision</strong> is <em>vital for semester finals</em>.
+    </p>
+    <a class="btn btn-primary" href="/academics">View Grade Book</a>
+    <a class="btn btn-ghost" href="/assignments">Check Deadlines</a>
+  </section>
 
-<!-- Quick Stats -->
-<div class="quick-stats">
-  <div class="card">
-    <div class="card-title">Current CGPA</div>
-    <div class="stat-value" style="color: var(--accent)">{{ student.cgpa }}</div>
-    <div class="stat-delta up">↑ +0.2 this semester</div>
-  </div>
-  <div class="card">
-    <div class="card-title">Attendance</div>
-    <div class="stat-value" style="color: var(--accent2)">{{ student.attendance }}%</div>
-    <div class="stat-delta warn">⚡ 1 course critical</div>
-  </div>
-  <div class="card">
-    <div class="card-title">Pending Assignments</div>
-    <div class="stat-value" style="color: var(--accent3)">{{ assignments|length }}</div>
-    <div class="stat-delta down">🔴 1 due tomorrow</div>
-  </div>
-  <div class="card">
-    <div class="card-title">Credits Done</div>
-    <div class="stat-value">{{ student.credits_completed }}</div>
-    <div class="stat-label">of {{ student.credits_total }} total</div>
-    <div class="progress-bar" style="margin-top: 8px">
-      <div class="progress-fill" style="width: {{ (student.credits_completed/student.credits_total*100)|int }}%; background: var(--accent2)"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Bottom Grid -->
-<div class="bottom-grid">
-
-  <!-- Courses Overview -->
-  <div class="card">
+  <!-- INTERACTIVE STAT CARDS: mouseover / mouseout / click -->
+  <section aria-labelledby="stat-heading">
     <div class="section-header">
-      <div class="section-title">Active Courses</div>
-      <a href="/academics" style="font-size:12px; color: var(--accent); text-decoration: none;">View all →</a>
+      <h2 id="stat-heading" class="section-title">Key Academic Metrics</h2>
+      <span class="section-sub">Hover for details · click to inspect</span>
     </div>
-    {% set colors = ['#7c6af7','#4fd1c5','#f6ad55','#fc8181','#68d391','#a78bfa'] %}
-    {% for course in courses %}
-    <div class="course-mini">
-      <div class="course-dot" style="background: {{ colors[loop.index0 % 6] }}"></div>
-      <div>
-        <div class="course-mini-name">{{ course.name }}</div>
-        <div style="font-size: 11px; color: var(--muted)">{{ course.faculty }}</div>
+
+    <div class="event-grid">
+      <div class="card interactive stat-card" role="button" tabindex="0"
+           data-title="Current CGPA"
+           data-info="CGPA: {{ student.cgpa }} / 10.0 · +0.2 improvement this semester · Top 5% ranking">
+        <div class="ev-icon" aria-hidden="true">📈</div>
+        <h3>{{ student.cgpa }} CGPA</h3>
+        <p class="muted">Semester {{ student.semester }} average</p>
+        <div class="ev-foot">
+          <span class="chip chip-purple">Academic</span>
+          <span class="saved-badge">Active ✓</span>
+        </div>
       </div>
-      <div class="course-mini-grade">{{ course.grade }}</div>
+
+      <div class="card interactive stat-card" role="button" tabindex="0"
+           data-title="Overall Attendance"
+           data-info="Overall Attendance: {{ student.attendance }}% · 4 courses safe · 2 in warning range (&lt;80%)">
+        <div class="ev-icon" aria-hidden="true">✅</div>
+        <h3>{{ student.attendance }}% Attendance</h3>
+        <p class="muted">Above 75% minimum threshold</p>
+        <div class="ev-foot">
+          <span class="chip chip-teal">Compliance</span>
+          <span class="saved-badge">Active ✓</span>
+        </div>
+      </div>
+
+      <div class="card interactive stat-card" role="button" tabindex="0"
+           data-title="Pending Assignments"
+           data-info="Pending: {{ assignments|length }} tasks queued · Database ER Diagram due tomorrow">
+        <div class="ev-icon" aria-hidden="true">📝</div>
+        <h3>{{ assignments|length }} Assignments</h3>
+        <p class="muted">1 urgent deadline tomorrow</p>
+        <div class="ev-foot">
+          <span class="chip chip-orange">Tasks</span>
+          <span class="saved-badge">Active ✓</span>
+        </div>
+      </div>
+
+      <div class="card interactive stat-card" role="button" tabindex="0"
+           data-title="Degree Credits"
+           data-info="Completed: {{ student.credits_completed }} of {{ student.credits_total }} total graduation credits (70%)">
+        <div class="ev-icon" aria-hidden="true">🎓</div>
+        <h3>{{ student.credits_completed }}/{{ student.credits_total }} Credits</h3>
+        <p class="muted">70% degree completion</p>
+        <div class="ev-foot">
+          <span class="chip chip-green">Graduation</span>
+          <span class="saved-badge">Active ✓</span>
+        </div>
+      </div>
     </div>
-    {% endfor %}
+
+    <div id="statDetail" class="detail-bar" aria-live="polite">Hover a metric for details · click to inspect</div>
+  </section>
+
+  <!-- SECTION + ASIDE LAYOUT IN CSS GRID -->
+  <div class="layout">
+    <!-- SECTION: Active Courses & Nested Lists -->
+    <section class="card prose" aria-labelledby="course-h">
+      <h2 id="course-h" class="section-title">Active Courses & Curriculum Roadmap</h2>
+      <p class="muted">Current enrolled subjects with semester syllabus milestones:</p>
+      
+      <!-- Nested UL and OL lists -->
+      <ul>
+        <li><b>Computer Science Core</b>
+          <ol>
+            <li>Data Structures &amp; Algorithms — <i>Dr. Priya Nair</i> (Grade: A)</li>
+            <li>Machine Learning Foundations — <i>Dr. Rajesh Kumar</i> (Grade: A+)</li>
+            <li>Database Systems &amp; Query Optimisation — <i>Dr. Suresh Babu</i> (Grade: A+)</li>
+          </ol>
+        </li>
+        <li><b>Allied Engineering &amp; Analytics</b>
+          <ol>
+            <li>Advanced Python Programming — <i>Prof. Meena Iyer</i> (Grade: B+)</li>
+            <li>Probability &amp; Applied Statistics — <i>Dr. Anjali Singh</i> (Grade: B+)</li>
+          </ol>
+        </li>
+        <li><b>Professional Ethics</b>
+          <ol>
+            <li>Engineering Ethics &amp; Conduct — <i>Prof. Ravi Menon</i> (Grade: A)</li>
+          </ol>
+        </li>
+      </ul>
+
+      <h3>Weekly Goal Checklist</h3>
+      <ol>
+        <li>Complete ER Diagram for Database Systems</li>
+        <li>Implement gradient descent benchmark in PyTorch</li>
+        <li>Attend Advanced Python lecture on Friday to protect 78% attendance</li>
+      </ol>
+    </section>
+
+    <!-- ASIDE: Quick Facts & Wellness Snapshot -->
+    <aside class="card" aria-label="Student Snapshot">
+      <div class="card-title">Campus Profile</div>
+      <p>👤 <b>{{ student.name }}</b> ({{ student.id }})</p>
+      <p>🏛️ {{ student.branch }}</p>
+      <p>📅 Semester {{ student.semester }} · 2026</p>
+      <hr style="border:0;border-top:1px solid var(--border);margin:12px 0;">
+      <div class="card-title">Wellness Snapshot</div>
+      <p>⚠️ Burnout Risk: <b style="color:var(--accent3)">{{ wellness.burnout_risk }}</b></p>
+      <p>💤 Sleep Average: <b>{{ wellness.sleep_hours }} hrs/night</b></p>
+      <p>🔥 Study Streak: <b style="color:var(--success)">{{ wellness.streak_days }} days</b></p>
+      <div style="margin-top:16px">
+        <a class="btn btn-ghost" href="/wellness" style="width:100%;text-align:center;">Open Wellness Hub</a>
+      </div>
+    </aside>
   </div>
 
-  <!-- Right column -->
-  <div style="display: flex; flex-direction: column; gap: 16px;">
+  <!-- ARTICLE: Digital Twin Simulation -->
+  <article class="card prose" aria-labelledby="twin-h">
+    <div class="card-title">AI Simulation</div>
+    <h2 id="twin-h" class="section-title">🧬 Digital Twin Academic Simulation</h2>
+    <p class="muted"><small>Predictive workload forecasting for Semester 7 add/drop options</small></p>
+    <p>
+      If you enroll in <b>Advanced Wireless Networks</b> + <b>Soft Computing</b> simultaneously:
+      Workload will spike by <span style="color:var(--danger);font-weight:700">+28%</span>, 
+      predicted CGPA impact is <span style="color:var(--accent3);font-weight:700">−0.3</span>, 
+      and burnout risk elevates to <span style="color:var(--danger);font-weight:700">High</span>.
+    </p>
+    <p>
+      <strong>AI Recommendation:</strong> <em>Do NOT add both courses in the same semester.</em> Choose Advanced Wireless Networks as an audit course or defer to Semester 8.
+    </p>
+  </article>
 
-    <!-- Upcoming Assignments -->
-    <div class="card">
-      <div class="section-header">
-        <div class="section-title">Upcoming Assignments</div>
-        <a href="/assignments" style="font-size:12px; color: var(--accent); text-decoration: none;">View all →</a>
-      </div>
-      {% for a in assignments[:4] %}
-      {% set color = '#fc8181' if a.due_days <= 1 else '#f6ad55' if a.due_days <= 5 else '#68d391' %}
-      <div class="assign-item">
-        <div class="assign-dot" style="background: {{ color }}"></div>
-        <div>
-          <div class="assign-name">{{ a.title }}</div>
-          <div class="assign-course">{{ a.course }}</div>
-        </div>
-        <div class="assign-due" style="color: {{ color }}">
-          {% if a.due_days == 1 %}Tomorrow{% else %}{{ a.due_days }}d left{% endif %}
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-
-    <!-- Digital Twin -->
-    <div class="twin-visual">
-      <div class="twin-title">🧬 Digital Twin Simulation</div>
-      <div class="twin-sub">AI prediction if you add Advanced Wireless Networks + Soft Computing</div>
-      <div class="twin-stat">
-        <span class="twin-stat-label">Workload increase</span>
-        <span class="twin-stat-value" style="color: var(--danger)">+28%</span>
-      </div>
-      <div class="twin-stat">
-        <span class="twin-stat-label">Predicted CGPA impact</span>
-        <span class="twin-stat-value" style="color: var(--accent3)">−0.3</span>
-      </div>
-      <div class="twin-stat">
-        <span class="twin-stat-label">Burnout risk</span>
-        <span class="twin-stat-value" style="color: var(--danger)">High</span>
-      </div>
-      <div class="twin-stat">
-        <span class="twin-stat-label">AI Recommendation</span>
-        <span class="twin-stat-value" style="color: var(--success)">Do NOT add both</span>
-      </div>
-    </div>
-
-    <!-- Wellness Snapshot -->
-    <div class="card">
-      <div class="section-header">
-        <div class="section-title">Wellness Snapshot</div>
-        <a href="/wellness" style="font-size:12px; color: var(--accent); text-decoration: none;">Details →</a>
-      </div>
-      <div style="display: flex; gap: 16px; align-items: center;">
-        <div>
-          <div style="font-size: 11px; color: var(--muted); margin-bottom: 4px">Burnout Risk</div>
-          <span class="chip chip-orange">⚠️ {{ wellness.burnout_risk }}</span>
-        </div>
-        <div>
-          <div style="font-size: 11px; color: var(--muted); margin-bottom: 4px">Sleep</div>
-          <span class="chip chip-red">{{ wellness.sleep_hours }}h avg</span>
-        </div>
-        <div>
-          <div style="font-size: 11px; color: var(--muted); margin-bottom: 4px">Study Streak</div>
-          <span class="chip chip-green">🔥 {{ wellness.streak_days }} days</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
 </div>
-
 {% endblock %}

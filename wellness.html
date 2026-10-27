@@ -1,205 +1,110 @@
 {% extends "base.html" %}
+
 {% block title %}Wellness{% endblock %}
 {% block page_title %}Mental Wellness Monitor{% endblock %}
 
-{% block extra_head %}
-<style>
-.wellness-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.mood-chart { display: flex; align-items: flex-end; gap: 8px; height: 80px; margin-top: 12px; }
-.mood-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.mood-bar {
-  width: 100%;
-  border-radius: 4px 4px 0 0;
-  transition: height 0.4s ease;
-}
-.mood-day { font-size: 10px; color: var(--muted); }
-.burnout-meter {
-  position: relative;
-  background: var(--surface2);
-  border-radius: var(--radius);
-  padding: 20px;
-  border: 1px solid var(--border);
-  overflow: hidden;
-}
-.meter-arc {
-  width: 120px; height: 60px;
-  border-radius: 60px 60px 0 0;
-  border: 8px solid var(--border);
-  border-bottom: none;
-  position: relative;
-  margin: 0 auto 12px;
-  overflow: hidden;
-}
-.meter-fill {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 100%;
-  border-radius: 60px 60px 0 0;
-  background: conic-gradient(var(--accent3) 0deg, var(--accent3) 117deg, var(--border) 117deg);
-  clip-path: inset(0 0 50% 0);
-}
-.tip-card {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 14px;
-  margin-bottom: 10px;
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-}
-.tip-icon { font-size: 18px; flex-shrink: 0; }
-.tip-text { font-size: 12px; line-height: 1.6; color: var(--text); }
-.journal-textarea {
-  width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
-  color: var(--text);
-  font-family: inherit;
-  font-size: 13px;
-  resize: vertical;
-  min-height: 100px;
-  margin-top: 8px;
-}
-.journal-textarea:focus { outline: none; border-color: var(--accent); }
-</style>
-{% endblock %}
-
 {% block content %}
+<div class="wrap stack">
 
-<div class="ai-insight" style="margin-bottom: 24px">
-  <div class="ai-icon">🧘</div>
-  <div class="ai-text">
-    <strong>Wellness AI:</strong> ⚠️ <strong>Burnout Risk: Medium</strong> — You have 6 assignments this week, sleep reduced 25%, and study hours up 40%. AI Recommendation: Take a <strong>2-hour break today</strong>, sleep before midnight, and try the Pomodoro technique tomorrow morning.
-  </div>
+  <!-- HERO BANNER -->
+  <section class="hero" aria-labelledby="well-hero-h">
+    <p class="eyebrow">Health · <mark>Rest &amp; Focus</mark></p>
+    <h1 id="well-hero-h" class="display">Student Mental Wellness Hub</h1>
+    <p class="lead">
+      Burnout Risk: <b style="color:var(--accent3)">{{ wellness.burnout_risk }}</b>.
+      Log your daily mood vibe using the form below, navigate tips in the interactive gallery, 
+      and listen to calming focus audio or guided breathing video exercises.
+    </p>
+  </section>
+
+  <!-- MOOD FORM: Radio, Range, Color -->
+  <section class="card" aria-labelledby="mood-h">
+    <div class="section-header">
+      <h2 id="mood-h" class="section-title">Daily Mood &amp; Energy Check-In</h2>
+      <span class="section-sub">Radio, range slider with live readout, and color aura picker</span>
+    </div>
+
+    <form id="moodForm" action="#" method="post">
+      <div class="form-grid">
+        <!-- Radio Inputs -->
+        <div class="field full">
+          <span class="label">1. Current Mood State (Radio)</span>
+          <div class="choice-row">
+            <label class="choice"><input type="radio" name="mood" value="Energized"> ⚡ Energized</label>
+            <label class="choice"><input type="radio" name="mood" value="Focused" checked> 🎯 Focused</label>
+            <label class="choice"><input type="radio" name="mood" value="Neutral"> 😐 Neutral</label>
+            <label class="choice"><input type="radio" name="mood" value="Tired"> 😴 Tired</label>
+            <label class="choice"><input type="radio" name="mood" value="Stressed"> 🤯 Stressed</label>
+          </div>
+        </div>
+
+        <!-- Range Input -->
+        <div class="field">
+          <label for="energyRange">2. Energy Level: <output id="energyVal" for="energyRange" style="color:var(--accent);font-weight:700;">75</output>%</label>
+          <div class="range-row">
+            <input type="range" id="energyRange" name="energy" min="0" max="100" value="75">
+          </div>
+        </div>
+
+        <!-- Color Input -->
+        <div class="field">
+          <label for="auraColor">3. Mood Aura &amp; Vibe Color (Color Input)</label>
+          <input type="color" id="auraColor" name="aura_color" value="#7c6af7">
+        </div>
+      </div>
+
+      <div class="actions" style="justify-content:flex-start;margin-top:16px;">
+        <button class="btn btn-primary" type="submit">Log Mood Check-in</button>
+      </div>
+    </form>
+
+    <div id="moodMsg" class="card result" style="margin-top:16px;border-color:var(--accent);background:rgba(124,106,247,.08);" hidden aria-live="polite"></div>
+  </section>
+
+  <!-- TIPS GALLERY: Keyboard Controlled (ArrowLeft/ArrowRight, N/P, Space) -->
+  <section class="card gallery-widget" id="wellnessGallery"
+           data-slides='[{"name":"Mindfulness &amp; Deep Breathing","desc":"Take 5 minutes between coding sessions to close eyes, regulate breathing, and reduce stress.","img":"/static/images/wellness_meditation.jpg"},{"name":"Circadian Deep Sleep Hygiene","desc":"Consistent 7.5 to 8 hours of sleep solidifies newly acquired neural pathways from daytime study.","img":"/static/images/wellness_sleep.jpg"},{"name":"Structured Pomodoro Rest Break","desc":"Step away from the screen every 25 minutes. Hydrate, stretch, and let eyes reset.","img":"/static/images/wellness_pomodoro.jpg"}]'
+           aria-label="Wellness Tips Carousel">
+    <div class="section-header">
+      <h2 class="section-title">Wellness Tips Gallery</h2>
+      <span class="section-sub">Drag / flick · ← → · N / P · Space for caption details</span>
+    </div>
+    <div class="gallery-viewport" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Wellness photo cards">
+      <div class="gallery-track"></div>
+    </div>
+    <p class="gallery-caption" aria-live="polite"></p>
+    <div class="gallery-controls">
+      <button class="btn btn-ghost" type="button" data-dir="-1">Previous</button>
+      <div class="gallery-dots"></div>
+      <button class="btn btn-primary" type="button" data-dir="1">Next</button>
+    </div>
+  </section>
+
+  <!-- HTML5 MEDIA: One Audio and One Video with Controls -->
+  <section class="card" aria-labelledby="media-head">
+    <div class="section-header">
+      <h2 id="media-head" class="section-title">Focus &amp; Relaxation Media</h2>
+      <span class="section-sub">HTML5 audio and video elements with controls</span>
+    </div>
+    <div class="media-grid">
+      <div>
+        <div class="card-title">🎵 432Hz Binaural Ambient Audio</div>
+        <audio controls style="width:100%;margin-top:8px;">
+          <source src="{{ url_for('static', filename='media/focus_ambient.wav') }}" type="audio/wav">
+          Your browser does not support the audio element.
+        </audio>
+        <p class="media-note">Harmonic ambient sound generated for concentration.</p>
+      </div>
+      <div>
+        <div class="card-title">🎬 Guided Breathing Video</div>
+        <video controls preload="metadata" style="width:100%;border-radius:12px;background:#000;margin-top:8px;">
+          <source src="{{ url_for('static', filename='media/breathing_exercise.mp4') }}" type="video/mp4">
+          Your browser does not support the video element.
+        </video>
+        <p class="media-note">Visual rhythm for nervous system calming.</p>
+      </div>
+    </div>
+  </section>
+
 </div>
-
-<div class="wellness-grid">
-
-  <!-- Left -->
-  <div style="display: flex; flex-direction: column; gap: 16px;">
-
-    <!-- Key Metrics -->
-    <div class="card">
-      <div class="section-header"><div class="section-title">Health Indicators</div></div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
-        <div style="text-align: center; padding: 12px; background: var(--surface2); border-radius: 8px">
-          <div style="font-size: 28px; font-weight: 700; color: var(--accent3)">{{ wellness.sleep_hours }}h</div>
-          <div style="font-size: 11px; color: var(--muted)">Avg Sleep</div>
-          <div style="font-size: 10px; color: var(--danger)">↓ 25% this week</div>
-        </div>
-        <div style="text-align: center; padding: 12px; background: var(--surface2); border-radius: 8px">
-          <div style="font-size: 28px; font-weight: 700; color: var(--accent)">{{ wellness.study_hours_week }}h</div>
-          <div style="font-size: 11px; color: var(--muted)">Study/Week</div>
-          <div style="font-size: 10px; color: var(--danger)">↑ 40% vs last week</div>
-        </div>
-        <div style="text-align: center; padding: 12px; background: var(--surface2); border-radius: 8px">
-          <div style="font-size: 28px; font-weight: 700; color: var(--success)">🔥 {{ wellness.streak_days }}</div>
-          <div style="font-size: 11px; color: var(--muted)">Study Streak</div>
-        </div>
-        <div style="text-align: center; padding: 12px; background: var(--surface2); border-radius: 8px">
-          <div style="font-size: 28px; font-weight: 700; color: var(--danger)">{{ wellness.stress_level }}%</div>
-          <div style="font-size: 11px; color: var(--muted)">Stress Level</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Burnout Meter -->
-    <div class="card" style="text-align: center">
-      <div class="section-title" style="margin-bottom: 16px; text-align: left">Burnout Risk</div>
-      <div style="font-size: 32px; font-weight: 700; color: var(--accent3); margin-bottom: 4px">{{ wellness.burnout_risk }}</div>
-      <div style="font-size: 12px; color: var(--muted); margin-bottom: 16px">Predicted from workload, sleep & stress patterns</div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 11px">
-        <div style="padding: 8px; background: rgba(104,211,145,0.1); border-radius: 6px; color: var(--success)">● Low</div>
-        <div style="padding: 8px; background: rgba(246,173,85,0.15); border-radius: 6px; color: var(--accent3); border: 1px solid rgba(246,173,85,0.3)">● <strong>Medium</strong></div>
-        <div style="padding: 8px; background: rgba(252,129,129,0.1); border-radius: 6px; color: var(--danger)">● High</div>
-      </div>
-    </div>
-
-    <!-- Mood Journal -->
-    <div class="card">
-      <div class="section-title" style="margin-bottom: 8px">Mood Journal</div>
-      <div style="font-size: 12px; color: var(--muted); margin-bottom: 8px">How are you feeling right now?</div>
-      <div style="display: flex; gap: 8px; margin-bottom: 10px">
-        {% for emoji in ['😊', '😐', '😢', '😤', '😴', '🤯'] %}
-        <button style="flex: 1; padding: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; font-size: 20px; cursor: pointer" onclick="selectMood(this)">{{ emoji }}</button>
-        {% endfor %}
-      </div>
-      <textarea class="journal-textarea" placeholder="Write how you're feeling today... (optional)"></textarea>
-      <button class="btn btn-primary" style="margin-top: 10px; width: 100%">Save Journal Entry</button>
-    </div>
-
-  </div>
-
-  <!-- Right -->
-  <div style="display: flex; flex-direction: column; gap: 16px;">
-
-    <!-- Mood trend -->
-    <div class="card">
-      <div class="section-title" style="margin-bottom: 4px">Mood This Week</div>
-      <div style="font-size: 11px; color: var(--muted); margin-bottom: 12px">1 = very low, 10 = excellent</div>
-      <div class="mood-chart">
-        {% set mood_colors = ['#7c6af7', '#4fd1c5', '#68d391', '#f6ad55', '#fc8181', '#7c6af7', '#fc8181'] %}
-        {% for day, val in mood_data %}
-        <div class="mood-bar-wrap">
-          <div class="mood-bar" style="height: {{ val * 8 }}px; background: {{ mood_colors[loop.index0] }}; opacity: 0.8"></div>
-          <div class="mood-day">{{ day }}</div>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-
-    <!-- AI Recommendations -->
-    <div class="card">
-      <div class="section-title" style="margin-bottom: 14px">AI Wellness Recommendations</div>
-
-      <div class="tip-card">
-        <div class="tip-icon">🌙</div>
-        <div class="tip-text"><strong>Sleep priority tonight:</strong> Aim for 8 hours. Your cognitive performance drops 23% below 6.5h. Set an alarm for 11 PM to start winding down.</div>
-      </div>
-      <div class="tip-card">
-        <div class="tip-icon">⏱️</div>
-        <div class="tip-text"><strong>Pomodoro technique:</strong> Study 25 minutes, rest 5. After 4 rounds, take a 30-minute break. This reduces fatigue by 18% compared to continuous study.</div>
-      </div>
-      <div class="tip-card">
-        <div class="tip-icon">🚶</div>
-        <div class="tip-text"><strong>Movement break:</strong> Take a 15-minute walk at 3 PM today. Physical activity increases BDNF which improves memory consolidation during study.</div>
-      </div>
-      <div class="tip-card">
-        <div class="tip-icon">📵</div>
-        <div class="tip-text"><strong>Digital detox:</strong> Avoid social media 1 hour before sleep. Blue light and content stimulation delay sleep onset by an average of 40 minutes.</div>
-      </div>
-    </div>
-
-    <!-- Study-life balance -->
-    <div class="card">
-      <div class="section-title" style="margin-bottom: 12px">Study-Life Balance</div>
-      {% set balance = [('Study', 40, '#7c6af7'), ('Sleep', 26, '#4fd1c5'), ('Leisure', 15, '#68d391'), ('Exercise', 5, '#f6ad55'), ('Social', 14, '#fc8181')] %}
-      {% for label, pct, color in balance %}
-      <div style="margin-bottom: 8px">
-        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px">
-          <span>{{ label }}</span><span style="color: {{ color }}; font-weight: 600">{{ pct }}%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: {{ pct * 2 }}%; background: {{ color }}; opacity: 0.8"></div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-
-  </div>
-</div>
-
-{% endblock %}
-
-{% block scripts %}
-<script>
-function selectMood(btn) {
-  document.querySelectorAll('.mood-btn-sel').forEach(b => b.classList.remove('mood-btn-sel'));
-  btn.style.borderColor = 'var(--accent)';
-  btn.style.background = 'rgba(124,106,247,0.15)';
-}
-</script>
 {% endblock %}

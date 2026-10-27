@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session
 import json
 import random
+import re
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -11,13 +12,13 @@ app.secret_key = "edupilot-secret-2024"
 # ─── Sample Data ───────────────────────────────────────────────────────────────
 
 STUDENT = {
-    "name": "Arjun Sharma",
-    "id": "21BCE0456",
-    "branch": "B.Tech CSE (AI & ML)",
-    "semester": 6,
-    "cgpa": 8.3,
-    "attendance": 84,
-    "credits_completed": 112,
+    "name": "Dinesh Raj N",
+    "id": "23MIC0051",
+    "branch": "Integrated M.Tech CSE",
+    "semester": 7,
+    "cgpa": 8.6,
+    "attendance": 88,
+    "credits_completed": 132,
     "credits_total": 160,
 }
 
@@ -62,6 +63,20 @@ WELLNESS = {
     "mood_trend": "Declining",
     "streak_days": 12,
 }
+
+EVENTS = [
+    {"id": "hack",    "name": "Hackathon 2026", "category": "Technical", "chip": "purple", "emoji": "💻", "day": "Sat", "time": "9:00 AM",  "venue": "Main Auditorium",  "seats": 42,  "blurb": "24 hours of building with mentors.", "c1": "#7c6af7", "c2": "#4fd1c5"},
+    {"id": "quiz",    "name": "AI Quiz",        "category": "Technical", "chip": "purple", "emoji": "🧠", "day": "Sat", "time": "11:00 AM", "venue": "Seminar Hall 2",   "seats": 80,  "blurb": "Teams of two. Fast rounds.",         "c1": "#4fd1c5", "c2": "#7c6af7"},
+    {"id": "music",   "name": "Music Night",    "category": "Cultural",  "chip": "orange", "emoji": "🎵", "day": "Sat", "time": "6:00 PM",  "venue": "Open Air Theatre", "seats": 300, "blurb": "Live bands and open mic.",           "c1": "#f6ad55", "c2": "#fc8181"},
+    {"id": "dance",   "name": "Dance Battle",   "category": "Cultural",  "chip": "orange", "emoji": "💃", "day": "Sun", "time": "5:00 PM",  "venue": "Open Air Theatre", "seats": 120, "blurb": "Solo and crew categories.",          "c1": "#fc8181", "c2": "#7c6af7"},
+    {"id": "cricket", "name": "Cricket Cup",    "category": "Sports",    "chip": "teal",   "emoji": "🏏", "day": "Sat", "time": "3:00 PM",  "venue": "Sports Complex",   "seats": 16,  "blurb": "Inter-department knockout.",         "c1": "#68d391", "c2": "#4fd1c5"},
+    {"id": "chess",   "name": "Chess Open",     "category": "Sports",    "chip": "teal",   "emoji": "♟️", "day": "Sun", "time": "3:00 PM",  "venue": "Sports Complex",   "seats": 64,  "blurb": "Rapid format, 10 minutes each.",     "c1": "#2a2a3a", "c2": "#7c6af7"},
+]
+
+DEPARTMENTS = ["CSE", "CSE (AI & ML)", "IT", "ECE", "EEE", "Mechanical"]
+SKILLS = ["Python", "Java", "JavaScript", "C++", "SQL"]
+
+REGISTRATIONS = []  # in-memory demo store (resets when the server restarts)
 
 
 # ─── Routes ────────────────────────────────────────────────────────────────────
@@ -116,6 +131,16 @@ def chat():
     return render_template("chat.html", student=STUDENT)
 
 
+@app.route("/events")
+def events():
+    return render_template("events.html", student=STUDENT, events=EVENTS)
+
+@app.route("/register")
+def register():
+    return render_template("register.html", student=STUDENT, events=EVENTS,
+                           departments=DEPARTMENTS, skills=SKILLS)
+
+
 # ─── API Endpoints ─────────────────────────────────────────────────────────────
 
 @app.route("/api/chat", methods=["POST"])
@@ -141,7 +166,8 @@ def api_chat():
     elif any(w in user_msg for w in ["assignment", "deadline", "submit"]):
         reply = "📝 **Urgent Assignments:**\n\n🔴 Database ER Diagram — Due **tomorrow**\n🟠 ML Model Implementation — Due in 3 days\n🟡 Python Flask Project — Due in 5 days\n\nWant me to create a day-by-day plan for any of these?"
     elif any(w in user_msg for w in ["hello", "hi", "hey"]):
-        reply = f"👋 Hello Arjun! I'm your EduPilot AI assistant. I can help you with exam schedules, attendance, fees, assignments, career guidance, and more. What do you need today?"
+        first_name = STUDENT["name"].split()[0]
+        reply = f"👋 Hello {first_name}! I'm your EduPilot AI assistant. I can help you with exam schedules, attendance, fees, assignments, career guidance, and more. What do you need today?"
     else:
         reply = "🤖 I can help you with:\n\n• **Exams** — schedules, halls, dates\n• **Attendance** — safe leaves, predictions\n• **Fees** — due dates, payments\n• **Hostel** — rules, mess timings\n• **Career** — roadmaps, internships\n• **Assignments** — deadlines, planning\n• **Wellness** — stress, burnout tips\n\nJust ask me anything!"
 
@@ -177,6 +203,30 @@ def attendance_forecast():
         "safe_to_miss": safe,
         "status": "safe" if course["attendance"] > 85 else "warning" if course["attendance"] > 75 else "critical"
     })
+
+@app.route("/api/register", methods=["POST"])
+def api_register():
+    """Server-side re-check of the same rules the browser applies."""
+    data = request.get_json(silent=True) or {}
+    patterns = {
+        "name":   r"[A-Za-z][A-Za-z .'-]{2,49}",
+        "regno":  r"\d{2}[A-Za-z]{3}\d{4}",
+        "email":  r"[^\s@]+@[^\s@]+\.[^\s@]{2,}",
+        "mobile": r"[6-9]\d{9}",
+    }
+    errors = {f: "Invalid value" for f, p in patterns.items()
+              if not re.fullmatch(p, str(data.get(f, "")).strip())}
+    known = {e["id"] for e in EVENTS}
+    picked = data.get("events")
+    if not isinstance(picked, list) or not picked or not set(picked) <= known:
+        errors["events"] = "Pick at least one valid event"
+    if errors:
+        return jsonify({"ok": False, "errors": errors}), 400
+
+    ref = f"REG-{random.randint(1000, 9999)}"
+    REGISTRATIONS.append({"ref": ref, "regno": data["regno"].upper(), "events": picked,
+                          "at": datetime.now().isoformat(timespec="seconds")})
+    return jsonify({"ok": True, "ref": ref, "count": len(picked)})
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EduPilot AI — {% block title %}Dashboard{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="alternate icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32.png') }}">
+  <link rel="alternate icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon.png') }}">
+  <script>try{var t=localStorage.getItem('ep-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <style>
@@ -267,6 +272,7 @@
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/lab.css') }}">
   {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -279,7 +285,7 @@
   </div>
 
   <div class="sidebar-student">
-    <div class="student-avatar">AS</div>
+    <div class="student-avatar">DR</div>
     <div class="student-name">{{ student.name }}</div>
     <div class="student-id">{{ student.id }} · Sem {{ student.semester }}</div>
   </div>
@@ -314,6 +320,14 @@
     <a href="/chat" class="nav-item {% if request.path == '/chat' %}active{% endif %}">
       <span class="icon">💬</span> AI Assistant
     </a>
+
+    <div class="nav-label">Campus</div>
+    <a href="/events" class="nav-item {% if request.path == '/events' %}active{% endif %}">
+      <span class="icon">🎪</span> Events
+    </a>
+    <a href="/register" class="nav-item {% if request.path == '/register' %}active{% endif %}">
+      <span class="icon">📋</span> Register
+    </a>
   </nav>
 
   <div class="sidebar-footer">
@@ -324,18 +338,50 @@
 
 <!-- Main -->
 <div class="main">
-  <div class="topbar">
+  <header class="topbar">
     <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
     <div class="topbar-right">
+      <button class="btn btn-ghost" id="qnBtn" type="button" aria-haspopup="dialog">Jump to <kbd>/</kbd></button>
+      <button class="btn btn-ghost" id="themeBtn" type="button" aria-label="Toggle light or dark theme">◐</button>
       <span class="badge-cgpa">CGPA {{ student.cgpa }}</span>
       <span class="badge-sem">Sem {{ student.semester }} · {{ student.branch }}</span>
     </div>
-  </div>
-  <div class="page-content">
+  </header>
+  <main class="page-content">
     {% block content %}{% endblock %}
-  </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="foot-grid">
+      <section>
+        <h3>Contact</h3>
+        <p><b>EduPilot AI</b></p>
+        <p>support@edupilot.example</p>
+        <p>+91 98765 43210</p>
+      </section>
+      <section>
+        <h3>Quick Links</h3>
+        <a href="/">Dashboard</a>
+        <a href="/events">Events</a>
+        <a href="/register">Register</a>
+        <a href="/chat">AI Assistant</a>
+      </section>
+      <section>
+        <h3>Connect</h3>
+        <a href="https://github.com/InfiKnight-TGP/EduPilot" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://www.instagram.com/" target="_blank" rel="noopener">Instagram</a>
+      </section>
+      <section>
+        <h3>Created By</h3>
+        <p>Dinesh Raj N<br>23MIC0051</p>
+      </section>
+    </div>
+    <div class="foot-copy">&copy; 2026 EduPilot AI. All rights reserved.</div>
+  </footer>
 </div>
 
+<script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

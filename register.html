@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+{% block page_title %}Event Registration{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  <section class="card form-card" aria-labelledby="reg-h">
+    <div class="section-header">
+      <h2 id="reg-h" class="section-title">Register for campus events</h2>
+      <span class="section-sub">Fields are checked as you go</span>
+    </div>
+
+    <form id="regForm" action="#" method="post" enctype="multipart/form-data" novalidate
+          data-endpoint="{{ url_for('api_register') }}">
+      <div class="form-grid">
+
+        <div class="field" data-field="fullname">
+          <label for="fullname">Full name</label>
+          <input type="text" id="fullname" name="fullname" placeholder="Your name" minlength="3" maxlength="50" autocomplete="name">
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field" data-field="regno">
+          <label for="regno">Register number</label>
+          <input type="text" id="regno" name="regno" placeholder="e.g. 23MIC0051" maxlength="10" autocomplete="off">
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field" data-field="email">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email">
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field" data-field="mobile">
+          <label for="mobile">Mobile number</label>
+          <input type="tel" id="mobile" name="mobile" placeholder="9876543210" maxlength="10" inputmode="numeric" autocomplete="tel">
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field" data-field="password">
+          <label for="password">Portal password</label>
+          <input type="password" id="password" name="password" placeholder="8 to 20 characters" minlength="8" maxlength="20" autocomplete="new-password">
+          <div class="meter" aria-hidden="true"><span id="pwBar" data-level="0"></span></div>
+          <span class="meter-label" id="pwLabel"></span>
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field" data-field="age">
+          <label for="age">Age</label>
+          <input type="number" id="age" name="age" min="16" max="60" inputmode="numeric">
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field" data-field="dob">
+          <label for="dob">Date of birth</label>
+          <input type="date" id="dob" name="dob">
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field" data-field="dept">
+          <label for="dept">Department</label>
+          <select id="dept" name="dept">
+            <option value="">Select department</option>
+            {% for d in departments %}<option>{{ d }}</option>{% endfor %}
+          </select>
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field" data-field="slot">
+          <label for="slot">Preferred slot</label>
+          <input type="time" id="slot" name="slot">
+          <span class="msg"></span>
+        </div>
+
+        <div class="field" data-field="arrival">
+          <label for="arrival">Arrival date and time</label>
+          <input type="datetime-local" id="arrival" name="arrival">
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field" data-field="web">
+          <label for="web">Portfolio or LinkedIn (optional)</label>
+          <input type="url" id="web" name="web" placeholder="https://example.com">
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field" data-field="favourite">
+          <label for="favourite">Favourite event (optional)</label>
+          <input type="search" id="favourite" name="favourite" list="eventList" placeholder="Start typing…" autocomplete="off">
+          <datalist id="eventList">
+            {% for e in events %}<option value="{{ e.name }}">{% endfor %}
+          </datalist>
+          <span class="msg"></span>
+        </div>
+
+        <div class="field" data-field="color">
+          <label for="color">Team colour</label>
+          <input type="color" id="color" name="color" value="#7c6af7">
+          <span class="msg"></span>
+        </div>
+
+        <div class="field" data-field="exp">
+          <label for="exp">Experience level</label>
+          <div class="range-row">
+            <input type="range" id="exp" name="exp" min="0" max="10" value="5">
+            <output id="expVal" for="exp">5</output>
+          </div>
+          <span class="msg"></span>
+        </div>
+
+        <div class="field full" data-field="mode">
+          <span class="label" id="mode-l">How will you attend?</span>
+          <div class="choice-row" role="radiogroup" aria-labelledby="mode-l">
+            <label class="choice"><input type="radio" name="mode" value="In person"> In person</label>
+            <label class="choice"><input type="radio" name="mode" value="Online"> Online</label>
+            <label class="choice"><input type="radio" name="mode" value="Volunteer"> Volunteer</label>
+          </div>
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field full" data-field="events">
+          <span class="label" id="events-l">Events</span>
+          <div class="choice-row" role="group" aria-labelledby="events-l">
+            {% for e in events %}
+            <label class="choice"><input type="checkbox" name="events" value="{{ e.id }}" data-title="{{ e.name }}"> {{ e.emoji }} {{ e.name }}</label>
+            {% endfor %}
+          </div>
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field" data-field="skills">
+          <label for="skills">Skills (multiple)</label>
+          <select id="skills" name="skills" multiple>
+            {% for s in skills %}<option>{{ s }}</option>{% endfor %}
+          </select>
+          <span class="msg" aria-live="polite"></span>
+        </div>
+
+        <div class="field" data-field="idcard">
+          <label for="idcard">Upload ID card</label>
+          <input type="file" id="idcard" name="idcard" accept="image/*,.pdf">
+          <span class="msg"></span>
+        </div>
+
+        <div class="field full" data-field="notes">
+          <label for="notes">Anything else?</label>
+          <textarea id="notes" name="notes" rows="3" placeholder="Dietary needs, accessibility, questions…"></textarea>
+          <span class="msg"></span>
+        </div>
+
+      </div>
+
+      <input type="hidden" name="student_id" value="{{ student.id }}">
+
+      <div class="actions">
+        <input class="btn btn-ghost" type="reset" value="Reset">
+        <button class="btn btn-primary" type="submit">Register</button>
+      </div>
+    </form>
+
+    <div id="output" class="result" aria-live="polite" hidden></div>
+  </section>
+</div>
+{% endblock %}

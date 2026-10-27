@@ -1,121 +1,117 @@
 {% extends "base.html" %}
+
 {% block title %}Attendance{% endblock %}
 {% block page_title %}Smart Attendance Predictor{% endblock %}
 
-{% block extra_head %}
-<style>
-.att-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px;
-  margin-bottom: 12px;
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-  align-items: center;
-  gap: 16px;
-}
-.att-name { font-size: 13px; font-weight: 600; }
-.att-code { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.att-ring { position: relative; width: 56px; height: 56px; }
-.att-ring svg { transform: rotate(-90deg); }
-.att-ring-center {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 11px; font-weight: 700; text-align: center;
-}
-.att-num { text-align: center; }
-.att-num .val { font-size: 16px; font-weight: 700; }
-.att-num .lbl { font-size: 10px; color: var(--muted); }
-.status-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 4px;
-}
-</style>
-{% endblock %}
-
 {% block content %}
+<div class="wrap stack">
 
-<div class="ai-insight" style="margin-bottom: 24px">
-  <div class="ai-icon">✅</div>
-  <div class="ai-text">
-    <strong>Attendance AI:</strong> Overall attendance is <strong>84%</strong> — you're safe. However, <strong>Advanced Python (78%)</strong> is in the warning zone. You can only miss <strong>1 more class</strong> in that subject. Engineering Ethics is also close at 75% — attend all remaining classes.
-  </div>
-</div>
+  <!-- HERO BANNER -->
+  <section class="hero" aria-labelledby="att-hero-h">
+    <p class="eyebrow">Attendance · <mark>Compliance</mark></p>
+    <h1 id="att-hero-h" class="display">Attendance Forecast &amp; Leave Calculator</h1>
+    <p class="lead">
+      Overall aggregate attendance is <b>{{ student.attendance }}%</b>.
+      Advanced Python is at <strong>78%</strong> (warning threshold).
+      Select any course below to calculate safe bunks using the predictive forecast API.
+    </p>
+  </section>
 
-<!-- Overall -->
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px">
-  <div class="card" style="text-align: center">
-    <div class="card-title">Overall Attendance</div>
-    <div class="stat-value" style="color: var(--accent2)">{{ student.attendance }}%</div>
-    <div class="stat-delta up">Above 75% minimum</div>
-  </div>
-  <div class="card" style="text-align: center">
-    <div class="card-title">Courses Safe</div>
-    <div class="stat-value" style="color: var(--success)">4</div>
-    <div class="stat-label">Above 80%</div>
-  </div>
-  <div class="card" style="text-align: center">
-    <div class="card-title">Courses Critical</div>
-    <div class="stat-value" style="color: var(--danger)">2</div>
-    <div class="stat-label">Below 80%</div>
-  </div>
-</div>
-
-<!-- Header -->
-<div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 16px; padding: 8px 18px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px">
-  <span>Course</span>
-  <span style="text-align: center">Attended/Total</span>
-  <span style="text-align: center">Percentage</span>
-  <span style="text-align: center">Can Miss</span>
-  <span style="text-align: center">Status</span>
-</div>
-
-{% for c in attendance_data %}
-{% set color = '#fc8181' if c.attendance < 76 else '#f6ad55' if c.attendance < 82 else '#68d391' %}
-{% set radius = 22 %}
-{% set circ = 2 * 3.14159 * radius %}
-{% set offset = circ * (1 - c.attendance / 100) %}
-<div class="att-card">
-  <div>
-    <div class="att-name">{{ c.name }}</div>
-    <div class="att-code">{{ c.code }}</div>
-  </div>
-
-  <div style="text-align: center">
-    <div class="att-ring" style="margin: 0 auto">
-      <svg width="56" height="56" viewBox="0 0 56 56">
-        <circle cx="28" cy="28" r="{{ radius }}" fill="none" stroke="var(--border)" stroke-width="5"/>
-        <circle cx="28" cy="28" r="{{ radius }}" fill="none" stroke="{{ color }}" stroke-width="5"
-          stroke-dasharray="{{ circ }}" stroke-dashoffset="{{ offset }}"
-          stroke-linecap="round"/>
-      </svg>
-      <div class="att-ring-center" style="color: {{ color }}">{{ c.attendance }}%</div>
+  <!-- FORECAST CALCULATOR: Course Selector + /api/attendance-forecast API -->
+  <section class="card" aria-labelledby="calc-h">
+    <div class="section-header">
+      <h2 id="calc-h" class="section-title">Course Leave Forecaster</h2>
+      <span class="section-sub">Integrated with /api/attendance-forecast</span>
     </div>
-  </div>
 
-  <div class="att-num">
-    <div class="val">{{ c.attended }}/{{ c.total }}</div>
-    <div class="lbl">classes</div>
-  </div>
+    <div class="field" style="max-width:540px;">
+      <label for="courseSelect">Choose Enrolled Course</label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <select id="courseSelect" name="course_code" style="flex:1;min-width:240px;">
+          <option value="CSE3001">CSE3001 — Data Structures &amp; Algorithms</option>
+          <option value="CSE3002">CSE3002 — Machine Learning</option>
+          <option value="CSE3003">CSE3003 — Advanced Python</option>
+          <option value="CSE3004">CSE3004 — Database Systems</option>
+          <option value="MAT3001">MAT3001 — Probability &amp; Statistics</option>
+          <option value="HUM3001">HUM3001 — Engineering Ethics</option>
+        </select>
+        <button id="forecastBtn" class="btn btn-primary" type="button">Forecast Attendance</button>
+      </div>
+    </div>
 
-  <div class="att-num">
-    <div class="val" style="color: {{ color }}">{{ c.safe_to_miss }}</div>
-    <div class="lbl">safe to skip</div>
-  </div>
+    <!-- Output Forecast Table rendered via JS fetch -->
+    <div id="forecastOutput" aria-live="polite">
+      <div class="table-wrap" style="margin-top:14px">
+        <table class="table bordered">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th class="center">Current %</th>
+              <th class="center">Attended</th>
+              <th class="center">Safe to Miss</th>
+              <th class="center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Data Structures &amp; Algorithms</b> (CSE3001)</td>
+              <td class="center"><b>88%</b></td>
+              <td class="center">35 / 40</td>
+              <td class="center" style="color:var(--success);font-weight:700">5 classes</td>
+              <td class="center"><span class="chip chip-teal">Safe (>85%)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 
-  <div style="text-align: center">
-    {% if c.attendance >= 85 %}
-    <span class="chip chip-green">✓ Safe</span>
-    {% elif c.attendance >= 75 %}
-    <span class="chip chip-orange">⚠ Warning</span>
-    {% else %}
-    <span class="chip chip-red">✗ Critical</span>
-    {% endif %}
-  </div>
+  <!-- ALL ENROLLED COURSES TABLE -->
+  <section class="card" aria-labelledby="all-courses-h">
+    <div class="section-header">
+      <h2 id="all-courses-h" class="section-title">Enrolled Courses Summary</h2>
+      <span class="section-sub">Current semester attendance ledger</span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table bordered">
+        <caption>Current attendance breakdown across all enrolled subjects</caption>
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Faculty</th>
+            <th class="center">Attended / Total</th>
+            <th class="center">Percentage</th>
+            <th class="center">Safe to Miss</th>
+            <th class="center">Compliance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in attendance_data %}
+          {% set pchip = 'teal' if c.attendance >= 85 else 'orange' if c.attendance >= 75 else 'red' %}
+          <tr>
+            <td><b>{{ c.name }}</b> <span class="muted">({{ c.code }})</span></td>
+            <td>{{ c.faculty }}</td>
+            <td class="center">{{ c.attended }} / {{ c.total }}</td>
+            <td class="center"><b>{{ c.attendance }}%</b></td>
+            <td class="center" style="color:{% if c.safe_to_miss > 0 %}var(--success){% else %}var(--danger){% endif %};font-weight:700">
+              {{ c.safe_to_miss }} classes
+            </td>
+            <td class="center">
+              {% if c.attendance >= 85 %}
+              <span class="chip chip-teal">Safe</span>
+              {% elif c.attendance >= 75 %}
+              <span class="chip chip-orange">Warning</span>
+              {% else %}
+              <span class="chip chip-red">Critical</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
 </div>
-{% endfor %}
-
 {% endblock %}

@@ -1,142 +1,204 @@
 {% extends "base.html" %}
+
 {% block title %}Timetable{% endblock %}
 {% block page_title %}AI Timetable Optimizer{% endblock %}
 
-{% block extra_head %}
-<style>
-.tt-table { width: 100%; border-collapse: collapse; }
-.tt-table th {
-  background: var(--surface2);
-  padding: 10px 12px;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--muted);
-  border: 1px solid var(--border);
-  text-align: center;
-}
-.tt-table td {
-  border: 1px solid var(--border);
-  padding: 10px 8px;
-  text-align: center;
-  font-size: 12px;
-  vertical-align: middle;
-  min-width: 90px;
-}
-.tt-day { font-weight: 600; font-size: 12px; background: var(--surface2); }
-.slot-filled {
-  background: rgba(124,106,247,0.12);
-  color: var(--accent);
-  border-radius: 6px;
-  padding: 6px 4px;
-  font-weight: 600;
-  border: 1px solid rgba(124,106,247,0.2);
-}
-.slot-empty { color: var(--border); }
-.prefs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-.pref-chip {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 14px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.pref-chip.selected { border-color: var(--accent); background: rgba(124,106,247,0.1); color: var(--accent); }
-.pref-icon { font-size: 16px; }
-.times-header { display: grid; grid-template-columns: 80px repeat(6, 1fr); }
-</style>
-{% endblock %}
-
 {% block content %}
+<div class="wrap stack">
 
-<div class="ai-insight" style="margin-bottom: 24px">
-  <div class="ai-icon">🗓</div>
-  <div class="ai-text">
-    <strong>Timetable AI:</strong> Your current schedule has <strong>0 clashes</strong> and is optimized for morning productivity. Faculty ratings average <strong>4.4 / 5</strong>. Friday evenings are free as requested. Next semester optimization available in 3 weeks.
-  </div>
+  <!-- HERO BANNER -->
+  <section class="hero" aria-labelledby="tt-hero-h">
+    <p class="eyebrow">Schedule · <mark>Clash-Free</mark></p>
+    <h1 id="tt-hero-h" class="display">Weekly Timetable Matrix</h1>
+    <p class="lead">
+      Semester {{ student.semester }} weekly schedule with <strong>0 timetable clashes</strong>.
+      Continuous <b>2-hour lab blocks</b> are allocated using table <code>colspan</code>, 
+      with a synchronized lunch hour spanning all weekdays using <code>rowspan</code>.
+    </p>
+  </section>
+
+  <!-- TIMETABLE TABLE: Colspan and Rowspan for Lab Blocks -->
+  <section class="card" aria-labelledby="sch-table-h">
+    <div class="section-header">
+      <h2 id="sch-table-h" class="section-title">Weekly Course &amp; Laboratory Schedule</h2>
+      <span class="section-sub">Hover any slot to inspect venue and faculty</span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table bordered">
+        <caption>Weekly lectures and practical lab allocations</caption>
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>8:00–9:00 AM</th>
+            <th>9:00–10:00 AM</th>
+            <th>11:00–12:00 PM</th>
+            <th>12:00–1:00 PM</th>
+            <th>1:00–2:00 PM</th>
+            <th colspan="2" class="center" style="background:rgba(79,209,197,.18);color:var(--accent2)">
+              2:00–4:00 PM (Lab Blocks · Colspan 2)
+            </th>
+            <th>4:00–5:00 PM</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Monday -->
+          <tr>
+            <td style="font-weight:700;background:var(--surface2);">Monday</td>
+            <td>
+              <span class="tt-slot cell-a" role="button" tabindex="0"
+                    data-info="Data Structures &amp; Algorithms (Lecture) · Dr. Priya Nair · Tech Tower 402 · 8:00–9:00 AM">
+                DSA (L)
+              </span>
+            </td>
+            <td class="center muted">—</td>
+            <td>
+              <span class="tt-slot cell-b" role="button" tabindex="0"
+                    data-info="Machine Learning (Lecture) · Dr. Rajesh Kumar · SJT 101 · 11:00–12:00 PM">
+                ML (L)
+              </span>
+            </td>
+            <!-- Lunch Break with Rowspan = 5 -->
+            <td rowspan="5" class="center cell-c" style="vertical-align:middle;font-weight:700;width:70px;">
+              🍱<br>Lunch<br><small class="muted">Break</small>
+            </td>
+            <td>
+              <span class="tt-slot cell-a" role="button" tabindex="0"
+                    data-info="Database Systems · Dr. Suresh Babu · TT 203 · 1:00–2:00 PM">
+                DB (L)
+              </span>
+            </td>
+            <!-- Monday Lab Block: Colspan = 2 -->
+            <td colspan="2">
+              <span class="tt-slot cell-b center" role="button" tabindex="0"
+                    data-info="🧪 Advanced Python Practical Lab · Prof. Meena Iyer · Software Lab 2, SJT 412 · 2:00–4:00 PM">
+                🧪 Python Lab Block (2 hrs)
+              </span>
+            </td>
+            <td class="center muted">—</td>
+          </tr>
+
+          <!-- Tuesday -->
+          <tr>
+            <td style="font-weight:700;background:var(--surface2);">Tuesday</td>
+            <td class="center muted">—</td>
+            <td>
+              <span class="tt-slot cell-a" role="button" tabindex="0"
+                    data-info="Probability &amp; Statistics · Dr. Anjali Singh · MB 214 · 9:00–10:00 AM">
+                Stats (L)
+              </span>
+            </td>
+            <td class="center muted">—</td>
+            <td>
+              <span class="tt-slot cell-b" role="button" tabindex="0"
+                    data-info="Machine Learning Practice · Dr. Rajesh Kumar · SJT 101 · 1:00–2:00 PM">
+                ML (T)
+              </span>
+            </td>
+            <td>
+              <span class="tt-slot cell-a" role="button" tabindex="0"
+                    data-info="Engineering Ethics · Prof. Ravi Menon · TT 308 · 2:00–3:00 PM">
+                Ethics
+              </span>
+            </td>
+            <td class="center muted">—</td>
+            <td class="center muted">—</td>
+          </tr>
+
+          <!-- Wednesday -->
+          <tr>
+            <td style="font-weight:700;background:var(--surface2);">Wednesday</td>
+            <td>
+              <span class="tt-slot cell-a" role="button" tabindex="0"
+                    data-info="Data Structures &amp; Algorithms · Dr. Priya Nair · Tech Tower 402 · 8:00–9:00 AM">
+                DSA (L)
+              </span>
+            </td>
+            <td class="center muted">—</td>
+            <td>
+              <span class="tt-slot cell-b" role="button" tabindex="0"
+                    data-info="Advanced Python · Prof. Meena Iyer · TT 501 · 11:00–12:00 PM">
+                Python
+              </span>
+            </td>
+            <td class="center muted">—</td>
+            <!-- Wednesday Lab Block: Colspan = 2 -->
+            <td colspan="2">
+              <span class="tt-slot cell-b center" role="button" tabindex="0"
+                    data-info="🧪 Machine Learning Practical Lab · Dr. Rajesh Kumar · AI Research Lab, TT 605 · 2:00–4:00 PM">
+                🧪 ML &amp; AI Lab Block (2 hrs)
+              </span>
+            </td>
+            <td class="center muted">—</td>
+          </tr>
+
+          <!-- Thursday -->
+          <tr>
+            <td style="font-weight:700;background:var(--surface2);">Thursday</td>
+            <td class="center muted">—</td>
+            <td>
+              <span class="tt-slot cell-a" role="button" tabindex="0"
+                    data-info="Machine Learning · Dr. Rajesh Kumar · SJT 101 · 9:00–10:00 AM">
+                ML (L)
+              </span>
+            </td>
+            <td>
+              <span class="tt-slot cell-b" role="button" tabindex="0"
+                    data-info="Probability &amp; Statistics · Dr. Anjali Singh · MB 214 · 11:00–12:00 PM">
+                Stats
+              </span>
+            </td>
+            <td class="center muted">—</td>
+            <!-- Thursday Lab Block: Colspan = 2 -->
+            <td colspan="2">
+              <span class="tt-slot cell-b center" role="button" tabindex="0"
+                    data-info="🧪 Database Systems Implementation Lab · Dr. Suresh Babu · Database Lab, SJT 210 · 2:00–4:00 PM">
+                🧪 Database Lab Block (2 hrs)
+              </span>
+            </td>
+            <td>
+              <span class="tt-slot cell-a" role="button" tabindex="0"
+                    data-info="Data Structures (Tutorial) · Dr. Priya Nair · TT 402 · 4:00–5:00 PM">
+                DSA (T)
+              </span>
+            </td>
+          </tr>
+
+          <!-- Friday -->
+          <tr>
+            <td style="font-weight:700;background:var(--surface2);">Friday</td>
+            <td>
+              <span class="tt-slot cell-a" role="button" tabindex="0"
+                    data-info="Advanced Python · Prof. Meena Iyer · TT 501 · 8:00–9:00 AM">
+                Python
+              </span>
+            </td>
+            <td>
+              <span class="tt-slot cell-b" role="button" tabindex="0"
+                    data-info="Database Systems · Dr. Suresh Babu · TT 203 · 9:00–10:00 AM">
+                DB (L)
+              </span>
+            </td>
+            <td class="center muted">—</td>
+            <td>
+              <span class="tt-slot cell-a" role="button" tabindex="0"
+                    data-info="Engineering Ethics Seminar · Prof. Ravi Menon · TT 308 · 1:00–2:00 PM">
+                Ethics
+              </span>
+            </td>
+            <td class="center muted">—</td>
+            <td class="center muted">—</td>
+            <td class="center" style="background:var(--surface2);font-weight:600;color:var(--success)">Free Eve</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Interactive Hover Detail Bar -->
+    <div id="ttDetail" class="detail-bar" aria-live="polite">
+      Hover any course or lab slot for venue &amp; faculty details
+    </div>
+  </section>
+
 </div>
-
-<!-- Preferences -->
-<div class="section-header"><div class="section-title">Schedule Preferences</div></div>
-<div class="prefs-grid" style="margin-bottom: 24px">
-  <div class="pref-chip selected"><span class="pref-icon">🌅</span> Prefer Morning Classes</div>
-  <div class="pref-chip selected"><span class="pref-icon">🚫</span> No Friday Evenings</div>
-  <div class="pref-chip selected"><span class="pref-icon">⭐</span> Faculty Rating &gt; 4.0</div>
-  <div class="pref-chip"><span class="pref-icon">🏃</span> Back-to-Back Free Slots</div>
-  <div class="pref-chip"><span class="pref-icon">🏠</span> Minimal Campus Days</div>
-  <div class="pref-chip"><span class="pref-icon">🎯</span> Consecutive Lectures</div>
-</div>
-
-<!-- Timetable -->
-<div class="card">
-  <div class="section-header">
-    <div class="section-title">Generated Timetable · Semester 6</div>
-    <button class="btn btn-primary" onclick="regenerate()">✨ Re-optimize</button>
-  </div>
-  <div style="overflow-x: auto">
-    <table class="tt-table">
-      <thead>
-        <tr>
-          <th>Day</th>
-          <th>8–9 AM</th>
-          <th>9–10 AM</th>
-          <th>11 AM–12</th>
-          <th>1–2 PM</th>
-          <th>3–4 PM</th>
-          <th>4–5 PM</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for day, slots in timetable.items() %}
-        <tr>
-          <td class="tt-day">{{ day }}</td>
-          {% for slot in slots %}
-          <td>
-            {% if slot != '—' %}
-            <div class="slot-filled">{{ slot }}</div>
-            {% else %}
-            <span class="slot-empty">—</span>
-            {% endif %}
-          </td>
-          {% endfor %}
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<div style="margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px">
-  <div class="card" style="text-align: center">
-    <div class="stat-value" style="color: var(--success)">0</div>
-    <div class="stat-label">Schedule Clashes</div>
-  </div>
-  <div class="card" style="text-align: center">
-    <div class="stat-value" style="color: var(--accent)">4.4</div>
-    <div class="stat-label">Avg Faculty Rating</div>
-  </div>
-  <div class="card" style="text-align: center">
-    <div class="stat-value" style="color: var(--accent2)">3</div>
-    <div class="stat-label">Free Afternoons/Week</div>
-  </div>
-</div>
-
-{% endblock %}
-
-{% block scripts %}
-<script>
-function regenerate() {
-  const btn = event.target;
-  btn.textContent = '⏳ Optimizing...';
-  btn.disabled = true;
-  setTimeout(() => {
-    btn.textContent = '✨ Re-optimize';
-    btn.disabled = false;
-    alert('Schedule re-optimized! All preferences satisfied. No clashes detected.');
-  }, 1800);
-}
-</script>
 {% endblock %}

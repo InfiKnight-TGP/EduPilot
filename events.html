@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Events{% endblock %}
+{% block page_title %}Campus Events{% endblock %}
+
+{% block content %}
+<div class="wrap stack">
+
+  <!-- HERO: text formatting, sub / sup -->
+  <section class="hero" aria-labelledby="hero-h">
+    <p class="eyebrow">Campus · <mark>Live</mark></p>
+    <h1 id="hero-h" class="display">Everything happening on campus, in one place.</h1>
+    <p class="lead">
+      <b>Discover</b>, <i>save</i> and <u>register</u> for events. Event code TECH<sub>2026</sub>
+      · Prize pool ₹10<sup>5</sup> · Fun fact: a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>.
+      <strong>Seats are limited</strong>, so <em>register early</em>.
+    </p>
+    <a class="btn btn-primary" href="/register">Register now</a>
+    <a class="btn btn-ghost" href="#schedule">See the schedule</a>
+  </section>
+
+  <!-- SECTION + ASIDE: semantic layout in a CSS grid -->
+  <div class="layout">
+    <section class="card prose" aria-labelledby="cat-h">
+      <h2 id="cat-h" class="section-title">Categories</h2>
+      <ul>
+        <li>Technical
+          <ul>
+            {% for e in events if e.category == 'Technical' %}<li>{{ e.name }}</li>{% endfor %}
+          </ul>
+        </li>
+        <li>Cultural
+          <ul>
+            {% for e in events if e.category == 'Cultural' %}<li>{{ e.name }}</li>{% endfor %}
+          </ul>
+        </li>
+        <li>Sports
+          <ul>
+            {% for e in events if e.category == 'Sports' %}<li>{{ e.name }}</li>{% endfor %}
+          </ul>
+        </li>
+      </ul>
+      <h3>How to join</h3>
+      <ol>
+        <li>Pick the events you want</li>
+        <li>Fill in the registration form</li>
+        <li>Get your reference number</li>
+      </ol>
+    </section>
+
+    <aside class="card" aria-label="Quick facts">
+      <div class="card-title">Quick facts</div>
+      <p>🎯 {{ events|length }} events</p>
+      <p>👥 5000+ participants</p>
+      <p>⭐ Saved by you: <b id="savedCount">0</b></p>
+      <div class="card-title" style="margin-top:18px">Venue crowd</div>
+      <div class="signal" role="group" aria-label="Crowd status">
+        <button class="light red" type="button" data-msg="Busy: venue is full" aria-label="Busy"></button>
+        <button class="light yellow" type="button" data-msg="Moderate: a few seats left" aria-label="Moderate"></button>
+        <button class="light green" type="button" data-msg="Free: walk right in" aria-label="Free"></button>
+      </div>
+      <p id="signalMsg" class="muted" style="margin-top:8px" aria-live="polite">Hover a light</p>
+    </aside>
+  </div>
+
+  <!-- EVENT CARDS: Jinja loop + mouse events + live search -->
+  <section class="card" aria-labelledby="ev-h">
+    <div class="section-header">
+      <h2 id="ev-h" class="section-title">Featured events</h2>
+      <span class="section-sub">Click a card to save it</span>
+    </div>
+
+    <div class="search-row">
+      <input id="eventSearch" type="search" placeholder="Search events. Enter confirms, Esc clears" aria-label="Search events" autocomplete="off">
+      <p class="muted" style="margin-top:8px">Key pressed: <b id="keyShown">–</b> <span id="searchMsg" style="color:var(--success);font-weight:600;margin-left:10px"></span></p>
+    </div>
+
+    <div class="event-grid" style="margin-top:14px">
+      {% for e in events %}
+      <div class="card interactive event-card" role="button" tabindex="0" aria-pressed="false"
+           data-title="{{ e.name }}"
+           data-name="{{ e.name|lower }}" data-category="{{ e.category|lower }}"
+           data-info="{{ e.name }} · {{ e.day }}, {{ e.time }} · {{ e.venue }} · {{ e.seats }} seats left">
+        <div class="ev-icon" aria-hidden="true">{{ e.emoji }}</div>
+        <h3>{{ e.name }}</h3>
+        <p class="muted">{{ e.blurb }}</p>
+        <div class="ev-foot">
+          <span class="chip chip-{{ e.chip }}">{{ e.category }}</span>
+          <span class="saved-badge">Saved ✓</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <p id="noResults" class="muted" style="margin-top:14px" hidden>No events match your search.</p>
+    <div id="cardDetail" class="detail-bar" aria-live="polite">Hover a card for details · click to save</div>
+  </section>
+
+  <!-- TABLE: colspan + rowspan -->
+  <section class="card" id="schedule" aria-labelledby="sch-h">
+    <div class="section-header">
+      <h2 id="sch-h" class="section-title">Schedule</h2>
+      <span class="section-sub">Saturday and Sunday</span>
+    </div>
+    <div class="table-wrap">
+      <table class="table bordered">
+        <caption>Two-day timetable</caption>
+        <thead>
+          <tr><th colspan="4" class="center">Campus Events Weekend</th></tr>
+          <tr><th>Time</th><th>Saturday</th><th>Sunday</th><th>Venue</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>9:00 AM</td><td class="cell-a">Inauguration</td><td class="cell-b">Hackathon finals</td><td rowspan="2" class="center">Main Auditorium</td></tr>
+          <tr><td>11:00 AM</td><td class="cell-a">AI Quiz</td><td class="cell-b">Prize distribution</td></tr>
+          <tr><td>1:00 PM</td><td colspan="2" class="cell-c center">Lunch &amp; networking break</td><td class="center">Food court</td></tr>
+          <tr><td>3:00 PM</td><td class="cell-a">Cricket Cup</td><td class="cell-b">Chess Open</td><td class="center">Sports Complex</td></tr>
+          <tr><td>6:00 PM</td><td colspan="2" class="cell-a center">Music Night (both days)</td><td class="center">Open Air Theatre</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ARTICLE -->
+  <article class="card prose">
+    <div class="card-title">Latest story</div>
+    <h2 class="section-title">Five tips to win your first hackathon</h2>
+    <p class="muted"><small>By the Events Team</small></p>
+    <p>Start small, split the work early, keep the demo simple and practise the pitch. A working prototype beats a perfect idea every time.</p>
+    <p>Questions? <a href="mailto:events@edupilot.example" target="_blank" rel="noopener">Email the team</a>.</p>
+  </article>
+
+  <!-- GALLERY: drag, flick or use the keyboard -->
+  <section class="card" id="gallery" data-slides='{{ events|tojson }}' aria-label="Event gallery">
+    <div class="section-header">
+      <h2 class="section-title">Gallery</h2>
+      <span class="section-sub">Drag or flick · ← → · N / P · Space for details</span>
+    </div>
+    <div class="gallery-viewport" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Event photos">
+      <div class="gallery-track"></div>
+    </div>
+    <p class="gallery-caption" id="galleryCaption" aria-live="polite"></p>
+    <div class="gallery-controls">
+      <button class="btn btn-ghost" type="button" data-dir="-1">Previous</button>
+      <div class="gallery-dots"></div>
+      <button class="btn btn-primary" type="button" data-dir="1">Next</button>
+    </div>
+  </section>
+
+  <!-- MEDIA: audio + video -->
+  <section class="card" aria-labelledby="media-h">
+    <h2 id="media-h" class="section-title" style="margin-bottom:14px">Media</h2>
+    <div class="media-grid">
+      <div>
+        <div class="card-title">Promo video</div>
+        <video controls preload="metadata" poster="{{ url_for('static', filename='media/promo-poster.jpg') }}">
+          <source src="{{ url_for('static', filename='media/promo.mp4') }}" type="video/mp4">
+          Your browser does not support the video element.
+        </video>
+        <p class="media-note">Campus Hackathon &amp; Tech Conclave promotional teaser.</p>
+      </div>
+      <div>
+        <div class="card-title">Welcome chime</div>
+        <audio id="chime" controls>Your browser does not support the audio element.</audio>
+        <p class="media-note">Generated in the browser, so no file is needed.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

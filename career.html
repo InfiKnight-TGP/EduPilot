@@ -1,171 +1,110 @@
 {% extends "base.html" %}
+
 {% block title %}Career{% endblock %}
 {% block page_title %}Career Navigator{% endblock %}
 
-{% block extra_head %}
-<style>
-.career-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.roadmap {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-.roadmap-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  position: relative;
-}
-.roadmap-step:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  left: 19px;
-  top: 40px;
-  bottom: -20px;
-  width: 2px;
-  background: var(--border);
-}
-.step-circle {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
-}
-.step-circle.current {
-  background: var(--accent);
-  color: #fff;
-  box-shadow: 0 0 0 4px rgba(124,106,247,0.2);
-}
-.step-circle.next { background: rgba(79,209,197,0.2); color: var(--accent2); border: 2px solid var(--accent2); }
-.step-circle.future { background: var(--surface2); color: var(--muted); border: 2px solid var(--border); }
-.step-circle.goal { background: rgba(246,173,85,0.2); color: var(--accent3); border: 2px solid var(--accent3); }
-.step-content { padding-bottom: 24px; flex: 1; }
-.step-role { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-.step-skills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.skill-tag {
-  padding: 3px 8px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 11px;
-  color: var(--muted);
-}
-.gap-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(42,42,58,0.5);
-}
-.gap-item:last-child { border-bottom: none; }
-.gap-bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.gap-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--danger), var(--accent3)); }
-.gap-skill { font-size: 12px; font-weight: 600; min-width: 100px; }
-.gap-pct { font-size: 11px; color: var(--muted); min-width: 30px; text-align: right; }
-</style>
-{% endblock %}
-
 {% block content %}
+<div class="wrap stack">
 
-<div class="ai-insight" style="margin-bottom: 24px">
-  <div class="ai-icon">🚀</div>
-  <div class="ai-text">
-    <strong>Career AI:</strong> Based on your ML coursework and Python skills, you're well-positioned for an <strong>ML Engineering</strong> track. Key gap: <strong>PyTorch & MLOps</strong>. Top hiring companies visiting campus next month: Google, Microsoft, Flipkart. Recommended certification: <strong>TensorFlow Developer Certificate</strong>.
-  </div>
-</div>
+  <!-- HERO BANNER -->
+  <section class="hero" aria-labelledby="car-hero-h">
+    <p class="eyebrow">Career · <mark>AI &amp; ML Track</mark></p>
+    <h1 id="car-hero-h" class="display">Career Navigator &amp; Skill-Gap Analyzer</h1>
+    <p class="lead">
+      Target role: <b>Machine Learning Engineer</b>.
+      Use the skill-gap form to benchmark your current toolset against industry expectations, 
+      and follow the structured career roadmap below.
+    </p>
+  </section>
 
-<div class="career-grid">
-
-  <!-- Roadmap -->
-  <div class="card">
+  <!-- SKILL-GAP FORM: Checkboxes + Multiple Select -->
+  <section class="card" aria-labelledby="form-h">
     <div class="section-header">
-      <div class="section-title">Career Roadmap</div>
-      <span class="chip chip-purple">AI Generated</span>
+      <h2 id="form-h" class="section-title">Interactive Skill-Gap Analysis</h2>
+      <span class="section-sub">Check current proficiencies &amp; select target skills</span>
     </div>
-    <div class="roadmap">
-      {% set icons = ['🎓', '📊', '⚙️', '🤖', '🏗️'] %}
-      {% for step in career_path %}
-      <div class="roadmap-step">
-        <div class="step-circle {{ step.status }}">{{ icons[loop.index0] }}</div>
-        <div class="step-content">
-          <div class="step-role">{{ step.role }}</div>
-          <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px">{{ step.status }}</div>
-          <div class="step-skills">
-            {% for s in step.skills %}
-            <span class="skill-tag">{{ s }}</span>
-            {% endfor %}
+
+    <form id="skillForm" action="#" method="post">
+      <div class="form-grid">
+        <!-- Checkboxes for Current Skills -->
+        <div class="field full">
+          <span class="label">1. Your Current Skills (Checkboxes)</span>
+          <div class="choice-row">
+            <label class="choice"><input type="checkbox" name="has_skill" value="Python" checked> 🐍 Python</label>
+            <label class="choice"><input type="checkbox" name="has_skill" value="SQL" checked> 🗄️ SQL</label>
+            <label class="choice"><input type="checkbox" name="has_skill" value="ML Basics" checked> 🤖 ML Basics</label>
+            <label class="choice"><input type="checkbox" name="has_skill" value="Pandas"> 🐼 Pandas</label>
+            <label class="choice"><input type="checkbox" name="has_skill" value="Git" checked> 🐙 Git</label>
+            <label class="choice"><input type="checkbox" name="has_skill" value="Linux"> 🐧 Linux</label>
           </div>
         </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
 
-  <!-- Right -->
-  <div style="display: flex; flex-direction: column; gap: 16px;">
-
-    <!-- Skill Gap -->
-    <div class="card">
-      <div class="section-header">
-        <div class="section-title">Skill Gap Analysis</div>
-        <span class="chip chip-red">5 gaps</span>
+        <!-- Multiple Select for Target Role Skills -->
+        <div class="field full">
+          <label for="targetSkills">2. Target Role Requirements (Multiple Select — Ctrl/Cmd+click)</label>
+          <select id="targetSkills" name="target_skills" multiple>
+            <option value="PyTorch" selected>PyTorch (Deep Learning)</option>
+            <option value="MLOps" selected>MLOps &amp; Model Deployment</option>
+            <option value="Tableau">Tableau BI &amp; Visual Analytics</option>
+            <option value="System Design" selected>Distributed System Design</option>
+            <option value="Cloud (AWS/GCP)">Cloud Architecture (AWS / GCP)</option>
+            <option value="Transformers">Transformers &amp; LLMs</option>
+            <option value="Docker">Docker Containers</option>
+          </select>
+        </div>
       </div>
+
+      <div class="actions" style="justify-content:flex-start;margin-top:16px;">
+        <button class="btn btn-primary" type="submit">Analyze Skill Gaps</button>
+      </div>
+    </form>
+
+    <div id="missingSkills" class="result card" style="margin-top:18px;border-color:var(--accent);background:rgba(124,106,247,.06);" hidden aria-live="polite"></div>
+  </section>
+
+  <!-- SECTION + ASIDE: Roadmap as an Ordered List (<ol>) -->
+  <div class="layout">
+    <section class="card prose" aria-labelledby="road-h">
+      <h2 id="road-h" class="section-title">Career Progression Roadmap</h2>
+      <p class="muted">Semantic ordered sequence of milestones from undergrad to architect:</p>
+      
+      <!-- Roadmap as an Ordered List (<ol>) -->
+      <ol style="padding-left:1.5rem;line-height:1.9;">
+        <li><b>Student Researcher</b> <span class="chip chip-purple">Current Phase</span>
+          <p class="muted" style="margin:2px 0 8px;">Master Python, linear algebra, supervised algorithms, and SQL.</p>
+        </li>
+        <li><b>Data Analyst Intern</b> <span class="chip chip-teal">Upcoming</span>
+          <p class="muted" style="margin:2px 0 8px;">Explore data pipelines with Pandas, Tableau dashboards, and hypothesis testing.</p>
+        </li>
+        <li><b>ML Engineer</b> <span class="chip chip-orange">Future</span>
+          <p class="muted" style="margin:2px 0 8px;">Design production neural architectures with PyTorch, automated MLOps pipelines.</p>
+        </li>
+        <li><b>Applied AI Specialist</b> <span class="chip chip-purple">Future</span>
+          <p class="muted" style="margin:2px 0 8px;">Deploy Transformers, fine-tune open LLMs, and construct production RAG systems.</p>
+        </li>
+        <li><b>AI Systems Architect</b> <span class="chip chip-green">Ultimate Goal</span>
+          <p class="muted" style="margin:2px 0 8px;">Orchestrate enterprise distributed AI systems, multi-cloud clusters, and technical strategy.</p>
+        </li>
+      </ol>
+    </section>
+
+    <aside class="card" aria-label="Campus Placements">
+      <div class="card-title">Placement Insights</div>
+      <p>🏢 <b>Google:</b> 87% profile match</p>
+      <p>📦 <b>Amazon:</b> 79% profile match</p>
+      <p>💻 <b>Microsoft:</b> 74% profile match</p>
+      <div class="card-title" style="margin-top:18px">Skill Benchmarks</div>
       {% for sg in skill_gaps %}
-      <div class="gap-item">
-        <div class="gap-skill">{{ sg.skill }}</div>
-        <div class="gap-bar-bg">
-          <div class="gap-bar-fill" style="width: {{ sg.current }}%"></div>
+      <div style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px;">
+          <span>{{ sg.skill }}</span>
+          <span class="muted">{{ sg.current }}%</span>
         </div>
-        <div class="gap-pct">{{ sg.current }}%</div>
+        <div class="meter"><span style="width:{{ sg.current }}%;background:var(--accent);"></span></div>
       </div>
       {% endfor %}
-      <div style="margin-top: 12px; font-size: 11px; color: var(--muted)">Current proficiency vs. industry requirement</div>
-    </div>
-
-    <!-- Internships -->
-    <div class="card">
-      <div class="section-header">
-        <div class="section-title">Recommended Internships</div>
-      </div>
-      {% set internships = [
-        {'company': 'Google', 'role': 'ML Research Intern', 'match': 87, 'color': '#68d391'},
-        {'company': 'Amazon', 'role': 'Data Scientist Intern', 'match': 79, 'color': '#f6ad55'},
-        {'company': 'Microsoft', 'role': 'AI Engineer Intern', 'match': 74, 'color': '#4fd1c5'},
-      ] %}
-      {% for i in internships %}
-      <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(42,42,58,0.5)">
-        <div>
-          <div style="font-size: 13px; font-weight: 600">{{ i.company }}</div>
-          <div style="font-size: 11px; color: var(--muted)">{{ i.role }}</div>
-        </div>
-        <div style="text-align: right">
-          <div style="font-size: 14px; font-weight: 700; color: {{ i.color }}">{{ i.match }}%</div>
-          <div style="font-size: 10px; color: var(--muted)">match</div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-
-    <!-- Interview Prep -->
-    <div class="card">
-      <div class="card-title">Interview Prep Status</div>
-      {% set prep = [('DSA Problems', 65), ('ML Concepts', 80), ('System Design', 30), ('Behavioural', 55)] %}
-      {% for topic, pct in prep %}
-      <div style="margin-bottom: 10px">
-        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px">
-          <span>{{ topic }}</span>
-          <span style="color: var(--muted)">{{ pct }}%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: {{ pct }}%; background: {% if pct > 70 %}var(--success){% elif pct > 50 %}var(--accent3){% else %}var(--danger){% endif %}"></div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-
+    </aside>
   </div>
-</div>
 
+</div>
 {% endblock %}
